@@ -1,72 +1,117 @@
-(mlperf) dell@dell:/work/build/logs/2026.07.16-20.55.24/DGX-H100_H100-SXM-80GBx8_TRT/llama2-70b-99/Offline$ cat mlperf_log_summary.txt
-================================================
-MLPerf Results Summary
-================================================
-SUT name : PySUT
-Scenario : Offline
-Mode     : PerformanceOnly
-Samples per second: 107.28
-Tokens per second: 31313.2
-Result is : VALID
-  Min duration satisfied : Yes
-  Min queries satisfied : Yes
-  Early stopping satisfied: Yes
+# Format
+# If line starts with a '#' it is considered a comment
+# DCGM FIELD, Prometheus metric type, help message
+# Clocks
+DCGM_FI_DEV_SM_CLOCK,  gauge, SM clock frequency (in MHz).
+DCGM_FI_DEV_MEM_CLOCK, gauge, Memory clock frequency (in MHz).
 
-================================================
-Additional Stats
-================================================
-Min latency (ns)                : 4839236375
-Max latency (ns)                : 2748992044494
-Mean latency (ns)               : 1375799913383
-50.00 percentile latency (ns)   : 1376001270594
-90.00 percentile latency (ns)   : 2456551866221
-95.00 percentile latency (ns)   : 2592397202342
-97.00 percentile latency (ns)   : 2645816460436
-99.00 percentile latency (ns)   : 2699717012989
-99.90 percentile latency (ns)   : 2727242856485
+# Temperature
+DCGM_FI_DEV_MEMORY_TEMP, gauge, Memory temperature (in C).
+DCGM_FI_DEV_GPU_TEMP,    gauge, GPU temperature (in C).
+
+# Power
+DCGM_FI_DEV_POWER_USAGE,              gauge, Power draw (in W).
+DCGM_FI_DEV_TOTAL_ENERGY_CONSUMPTION, counter, Total energy consumption since boot (in mJ).
+
+# PCIE
+# DCGM_FI_PROF_PCIE_TX_BYTES,  counter, Total number of bytes transmitted through PCIe TX via NVML.
+# DCGM_FI_PROF_PCIE_RX_BYTES,  counter, Total number of bytes received through PCIe RX via NVML.
+DCGM_FI_DEV_PCIE_REPLAY_COUNTER, counter, Total number of PCIe retries.
+
+# Utilization (the sample period varies depending on the product)
+DCGM_FI_DEV_GPU_UTIL,      gauge, GPU utilization (in %).
+DCGM_FI_DEV_MEM_COPY_UTIL, gauge, Memory utilization (in %).
+DCGM_FI_DEV_ENC_UTIL,      gauge, Encoder utilization (in %).
+DCGM_FI_DEV_DEC_UTIL ,     gauge, Decoder utilization (in %).
+
+# Errors and violations
+DCGM_FI_DEV_XID_ERRORS,              gauge,   Value of the last XID error encountered.
+# DCGM_FI_DEV_POWER_VIOLATION,       counter, Throttling duration due to power constraints (in ns).
+# DCGM_FI_DEV_THERMAL_VIOLATION,     counter, Throttling duration due to thermal constraints (in ns).
+# DCGM_FI_DEV_SYNC_BOOST_VIOLATION,  counter, Throttling duration due to sync-boost constraints (in ns).
+# DCGM_FI_DEV_BOARD_LIMIT_VIOLATION, counter, Throttling duration due to board limit constraints (in ns).
+# DCGM_FI_DEV_LOW_UTIL_VIOLATION,    counter, Throttling duration due to low utilization (in ns).
+# DCGM_FI_DEV_RELIABILITY_VIOLATION, counter, Throttling duration due to reliability constraints (in ns).
+
+# DCGM Exporter fields
+
+# DCGM_EXP_CLOCK_EVENTS_COUNT, counter, reported clock events
+# DCGM_EXP_XID_ERRORS_COUNT, counter, reported XIDs during last window
+# DCGM_EXP_GPU_HEALTH_STATUS, counter, DCGM reported health status
+# DCGM_EXP_P2P_STATUS, counter, P2P NvLink status
+
+# Memory usage
+DCGM_FI_DEV_FB_FREE, gauge, Framebuffer memory free (in MiB).
+DCGM_FI_DEV_FB_USED, gauge, Framebuffer memory used (in MiB).
+DCGM_FI_DEV_FB_RESERVED, gauge, Framebuffer memory reserved (in MiB).
+
+# ECC
+# DCGM_FI_DEV_ECC_SBE_VOL_TOTAL, counter, Total number of single-bit volatile ECC errors.
+# DCGM_FI_DEV_ECC_DBE_VOL_TOTAL, counter, Total number of double-bit volatile ECC errors.
+# DCGM_FI_DEV_ECC_SBE_AGG_TOTAL, counter, Total number of single-bit persistent ECC errors.
+# DCGM_FI_DEV_ECC_DBE_AGG_TOTAL, counter, Total number of double-bit persistent ECC errors.
+
+# Retired pages
+# DCGM_FI_DEV_RETIRED_SBE,     counter, Total number of retired pages due to single-bit errors.
+# DCGM_FI_DEV_RETIRED_DBE,     counter, Total number of retired pages due to double-bit errors.
+# DCGM_FI_DEV_RETIRED_PENDING, counter, Total number of pages pending retirement.
+
+# NVLink
+# DCGM_FI_DEV_NVLINK_CRC_FLIT_ERROR_COUNT_TOTAL, counter, Total number of NVLink flow-control CRC errors.
+# DCGM_FI_DEV_NVLINK_CRC_DATA_ERROR_COUNT_TOTAL, counter, Total number of NVLink data CRC errors.
+# DCGM_FI_DEV_NVLINK_REPLAY_ERROR_COUNT_TOTAL,   counter, Total number of NVLink retries.
+# DCGM_FI_DEV_NVLINK_RECOVERY_ERROR_COUNT_TOTAL, counter, Total number of NVLink recovery errors.
+DCGM_FI_DEV_NVLINK_BANDWIDTH_TOTAL,            counter, Total number of NVLink bandwidth counters for all lanes.
+# DCGM_FI_DEV_NVLINK_BANDWIDTH_L0,               counter, The number of bytes of active NVLink rx or tx data including both header and payload.
+
+# VGPU License status
+DCGM_FI_DEV_VGPU_LICENSE_STATUS, gauge, vGPU License status
+
+# Remapped rows
+DCGM_FI_DEV_UNCORRECTABLE_REMAPPED_ROWS, counter, Number of remapped rows for uncorrectable errors
+DCGM_FI_DEV_CORRECTABLE_REMAPPED_ROWS,   counter, Number of remapped rows for correctable errors
+DCGM_FI_DEV_ROW_REMAP_FAILURE,           gauge,   Whether remapping of rows has failed
+
+# Static configuration information. These appear as labels on the other metrics
+DCGM_FI_DRIVER_VERSION,        label, Driver Version
+# DCGM_FI_NVML_VERSION,          label, NVML Version
+# DCGM_FI_DEV_BRAND,             label, Device Brand
+# DCGM_FI_DEV_SERIAL,            label, Device Serial Number
+# DCGM_FI_DEV_OEM_INFOROM_VER,   label, OEM inforom version
+# DCGM_FI_DEV_ECC_INFOROM_VER,   label, ECC inforom version
+# DCGM_FI_DEV_POWER_INFOROM_VER, label, Power management object inforom version
+# DCGM_FI_DEV_INFOROM_IMAGE_VER, label, Inforom image version
+# DCGM_FI_DEV_VBIOS_VERSION,     label, VBIOS version of the device
+
+# Datacenter Profiling (DCP) metrics
+# NOTE: supported on Nvidia datacenter Volta GPUs and newer
+DCGM_FI_PROF_GR_ENGINE_ACTIVE,   gauge, Ratio of time the graphics engine is active.
+# DCGM_FI_PROF_SM_ACTIVE,          gauge, The ratio of cycles an SM has at least 1 warp assigned.
+# DCGM_FI_PROF_SM_OCCUPANCY,       gauge, The ratio of number of warps resident on an SM.
+DCGM_FI_PROF_PIPE_TENSOR_ACTIVE, gauge, Ratio of cycles the tensor (HMMA) pipe is active.
+DCGM_FI_PROF_DRAM_ACTIVE,        gauge, Ratio of cycles the device memory interface is active sending or receiving data.
+# DCGM_FI_PROF_PIPE_FP64_ACTIVE,   gauge, Ratio of cycles the fp64 pipes are active.
+# DCGM_FI_PROF_PIPE_FP32_ACTIVE,   gauge, Ratio of cycles the fp32 pipes are active.
+# DCGM_FI_PROF_PIPE_FP16_ACTIVE,   gauge, Ratio of cycles the fp16 pipes are active.
+DCGM_FI_PROF_PCIE_TX_BYTES,      gauge, The rate of data transmitted over the PCIe bus - including both protocol headers and data payloads - in bytes per second.
+DCGM_FI_PROF_PCIE_RX_BYTES,      gauge, The rate of data received over the PCIe bus - including both protocol headers and data payloads - in bytes per second.
 
 
-================================================
-Test Parameters Used
-================================================
-samples_per_query : 290400
-target_qps : 110
-ttft_latency (ns): 2000000000
-tpot_latency (ns): 200000000
-max_async_queries : 1
-min_duration (ms): 2400000
-max_duration (ms): 0
-min_query_count : 1
-max_query_count : 0
-qsl_rng_seed : 6023615788873153749
-sample_index_rng_seed : 15036839855038426416
-schedule_rng_seed : 9933818062894767841
-accuracy_log_rng_seed : 0
-accuracy_log_probability : 0
-accuracy_log_sampling_target : 0
-print_timestamps : 0
-performance_issue_unique : 0
-performance_issue_same : 0
-performance_issue_same_index : 0
-performance_sample_count : 24576
-WARNING: sample_concatenate_permutation was set to true.
-Generated samples per query might be different as the one in the setting.
-Check the generated_samples_per_query line in the detailed log for the real
-samples_per_query value
+# ECC Errors
+DCGM_FI_DEV_ECC_SBE_VOL_TOTAL, counter, Total number of single-bit volatile ECC errors.
+DCGM_FI_DEV_ECC_DBE_VOL_TOTAL, counter, Total number of double-bit volatile ECC errors.
 
-No warnings encountered during test.
+# PCIe
+DCGM_FI_PROF_PCIE_TX_BYTES,  counter, PCIe TX bytes.
+DCGM_FI_PROF_PCIE_RX_BYTES,  counter, PCIe RX bytes.
 
-No errors encountered during test.
+# Throttle Reasons 추가
+DCGM_FI_DEV_CLOCK_THROTTLE_REASONS, gauge, Current clock throttle reasons (bitmask).
 
-
-
-(mlperf) dell@dell:/work/build/logs/2026.07.16-22.16.43/DGX-H100_H100-SXM-80GBx8_TRT/llama2-70b-99/Offline$ cat accuracy.txt
-
-Results
-
-{'rouge1': np.float64(44.5838), 'rouge2': np.float64(22.1557), 'rougeL': np.float64(28.7777), 'rougeLsum': np.float64(42.1594), 'gen_len': np.int64(28351264), 'gen_num': 24576, 'gen_tok_len': 7170515, 'tokens_per_sample': 291.8}
-(mlperf) dell@dell:/work/build/logs/2026.07.16-22.16.43/DGX-H100_H100-SXM-80GBx8_TRT/llama2-70b-99/Offline$ cat mlperf_log_summary.txt
-
-No warnings encountered during test.
-
-No errors encountered during test.
+# Violation Metrics
+DCGM_FI_DEV_POWER_VIOLATION,         counter, Power violation time (usec).
+DCGM_FI_DEV_THERMAL_VIOLATION,       counter, Thermal violation time (usec).
+DCGM_FI_DEV_SYNC_BOOST_VIOLATION,    counter, Sync boost violation time (usec).
+DCGM_FI_DEV_BOARD_LIMIT_VIOLATION,   counter, Board limit violation time (usec).
+DCGM_FI_DEV_LOW_UTIL_VIOLATION,      counter, Low utilization violation time (usec).
+DCGM_FI_DEV_RELIABILITY_VIOLATION,   counter, Reliability violation time (usec).
