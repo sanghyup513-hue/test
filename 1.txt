@@ -1,86 +1,54 @@
-dell@dell:~$ bash mlperf-8b.sh smoke
-
-==================================================
- SMOKE - synthetic data 50 step (기능 확인)
-==================================================
- config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
- DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
- topology               1node x 4gpu = WS 4
- parallelism            TP1 PP1 CP1 -> DP4
- batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
- precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
- lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
- eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
- max_steps              50
- overrides              USE_SYNTHETIC_DATA=1 VERIFY_MOUNTS=0 CHECK_COMPLIANCE=0 MAX_STEPS=50 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA NCCL_TEST=1 WALLTIME_RUNANDTIME=40 WALLTIME=45
- LOGDIR                 /data/lsh/mlperf-8b-logs
---------------------------------------------------
-   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
- JobID 99  제출됨. 60초마다 상태를 표시합니다.
-   04:28  [PENDING]  GPU MiB [4 4 4 4 4 4 4 ]
- JobID 99 종료 (경과 약 1분)
-   --   파싱할 로그가 없습니다 (/data/lsh/mlperf-8b-logs)
-dell@dell:~$ cat /data/lsh/mlperf-8b-logs
-cat: /data/lsh/mlperf-8b-logs: Is a directory
-dell@dell:~$ bash mlperf-8b.sh smoke^C
-dell@dell:~$ tmux attach -t mlperf
-#   bash mlperf-8b.sh perf 500             step 수 지정
-#   bash mlperf-8b.sh fp8attn              FP8 attention A/B 런
-#   bash mlperf-8b.sh sweep                MICRO_BATCH_SIZE 1/2/4 스윕
-#   bash mlperf-8b.sh converge             수렴 런 (log_ppl 3.3 목표, 매우 김)
-#   bash mlperf-8b.sh result               최근 결과 재파싱
-#
-# 성능 지표는 mllog의 tracked_stats.train_step_time 에서 추출합니다.
-#   TFLOPS/GPU = MODEL_TFLOP_PER_SAMPLE(421.59) * GBS / step_time / NGPU
-#   tokens/s   = GBS * 8192 / step_time
-#
-# 주의: MAX_STEPS 는 config 를 source 한 "뒤에" 덮어씁니다.
-#       config 안에서 바꾸면 OPT_LR_DECAY_STEPS 까지 따라 바뀌어 LR 궤적이 왜곡됩니다.
-# =============================================================================
-dell@dell:/data/lsh/inference_results_v6.0/closed/NVIDIA$ bash ~/mlperf-8b.sh perf
-
-==================================================
- PERF - 200 step 성능 측정 (eval 없음)
-==================================================
- config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
- DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
- topology               1node x 4gpu = WS 4
- parallelism            TP1 PP1 CP1 -> DP4
- batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
- precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
- lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
- eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
- max_steps              200
- overrides              MAX_STEPS=200 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=60 WALLTIME=70
- LOGDIR                 /data/lsh/mlperf-8b-logs
---------------------------------------------------
-   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
- JobID 100  제출됨. 60초마다 상태를 표시합니다.
-   04:31  [PENDING]  GPU MiB [4 4 4 4 4 4 4 ]
- JobID 100 종료 (경과 약 1분)
-   --   파싱할 로그가 없습니다 (/data/lsh/mlperf-8b-logs)
-dell@dell:/data/lsh/inference_results_v6.0/closed/NVIDIA$ bash ~/mlperf-8b.sh converge
-수렴 런: TARGET_LOG_PPL=3.3 까지. 4 GPU(GBS=16)에서는 수십~수백 시간 규모입니다.
-중단해도 되도록 ENABLE_RERUNS/SHARE_RERUNS 로 체크포인트를 이어씁니다.
-
-==================================================
- CONVERGE - log_ppl 3.3 목표
-==================================================
- config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
- DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
- topology               1node x 4gpu = WS 4
- parallelism            TP1 PP1 CP1 -> DP4
- batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
- precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
- lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
- eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
- max_steps              1200000
- overrides              ENABLE_RERUNS=1 SHARE_RERUNS=1 STORE_CKPTS_IN_LOGDIR=1 WALLTIME_EXIT_MINUTES=10
- LOGDIR                 /data/lsh/mlperf-8b-logs
---------------------------------------------------
-   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
- JobID 101  제출됨. 60초마다 상태를 표시합니다.
-   04:34  [PENDING]  GPU MiB [4 4 4 4 4 4 4 ]
- JobID 101 종료 (경과 약 1분)
-   --   파싱할 로그가 없습니다 (/data/lsh/mlperf-8b-logs)
-dell@dell:/data/lsh/inference_results_v6.0/closed/NVIDIA$
+[최근 slurm stdout]
+   --- /data/lsh/mlperf-8b-logs/slurm-102.out
+     + echo MELLANOX_VISIBLE_DEVICES=
+     MELLANOX_VISIBLE_DEVICES=
+     + srun --ntasks-per-node=1 --container-image=mlperf-nvidia:llama31_8b-pyt --container-name=llama31_8b_102 --no-container-mount-home --container-remap-root --container-writable true
+     pyxis: importing docker image: mlperf-nvidia:llama31_8b-pyt
+     slurmstepd-dell: error: pyxis: child 2123498 failed with error code: 1
+     slurmstepd-dell: error: pyxis: failed to import docker image
+     slurmstepd-dell: error: pyxis: printing enroot log file:
+     slurmstepd-dell: error: pyxis:     [INFO] Querying registry for permission grant
+     slurmstepd-dell: error: pyxis:     [INFO] Authenticating with user: <anonymous>
+     slurmstepd-dell: error: pyxis:     [INFO] Authentication succeeded
+     slurmstepd-dell: error: pyxis:     [INFO] Fetching image manifest list
+     slurmstepd-dell: error: pyxis:     [INFO] Fetching image manifest
+     slurmstepd-dell: error: pyxis:     [ERROR] URL https://registry-1.docker.io/v2/library/mlperf-nvidia/manifests/llama31_8b-pyt returned error code: 401 Unauthorized
+     slurmstepd-dell: error: pyxis: couldn't start container
+     slurmstepd-dell: error: spank: required plugin spank_pyxis.so: task_init() failed with rc=-1
+     slurmstepd-dell: error: Failed to invoke spank plugin stack
+     srun: error: dell: task 0: Exited with exit code 1
+     + cleanup_containers
+     + cleanup_npy_index_dir
+     + [[ 1 -gt 0 ]]
+     + rm -rf /data/lsh/mlperf-8b-logs/260901044836181146454_npy_index
+     + cleanup_pyxis
+     + srun --ntasks-per-node=1 /bin/bash -c 'if [[ "$(enroot list)" ]]; then enroot remove -f $(enroot list); fi'
+     + [[ -f /data/lsh/mlperf-8b-logs/hostfile.102.1LVv ]]
+     + rm -f /data/lsh/mlperf-8b-logs/hostfile.102.1LVv
+   --- /data/lsh/training_results_v6.0/Dell/benchmarks/llama31_8b/implementations/nemo/slurm-101.out
+     + echo MELLANOX_VISIBLE_DEVICES=
+     MELLANOX_VISIBLE_DEVICES=
+     + srun --ntasks-per-node=1 --container-image=mlperf-nvidia:llama31_8b-pyt --container-name=llama31_8b_101 --no-container-mount-home --container-remap-root --container-writable true
+     pyxis: importing docker image: mlperf-nvidia:llama31_8b-pyt
+     slurmstepd-dell: error: pyxis: child 2112527 failed with error code: 1
+     slurmstepd-dell: error: pyxis: failed to import docker image
+     slurmstepd-dell: error: pyxis: printing enroot log file:
+     slurmstepd-dell: error: pyxis:     [INFO] Querying registry for permission grant
+     slurmstepd-dell: error: pyxis:     [INFO] Authenticating with user: <anonymous>
+     slurmstepd-dell: error: pyxis:     [INFO] Authentication succeeded
+     slurmstepd-dell: error: pyxis:     [INFO] Fetching image manifest list
+     slurmstepd-dell: error: pyxis:     [INFO] Fetching image manifest
+     slurmstepd-dell: error: pyxis:     [ERROR] URL https://registry-1.docker.io/v2/library/mlperf-nvidia/manifests/llama31_8b-pyt returned error code: 401 Unauthorized
+     slurmstepd-dell: error: pyxis: couldn't start container
+     slurmstepd-dell: error: spank: required plugin spank_pyxis.so: task_init() failed with rc=-1
+     slurmstepd-dell: error: Failed to invoke spank plugin stack
+     srun: error: dell: task 0: Exited with exit code 1
+     + cleanup_containers
+     + cleanup_npy_index_dir
+     + [[ 1 -gt 0 ]]
+     + rm -rf /data/lsh/mlperf-8b-logs/260901043413184399809_npy_index
+     + cleanup_pyxis
+     + srun --ntasks-per-node=1 /bin/bash -c 'if [[ "$(enroot list)" ]]; then enroot remove -f $(enroot list); fi'
+     + [[ -f /data/lsh/mlperf-8b-logs/hostfile.101.TUVF ]]
+     + rm -f /data/lsh/mlperf-8b-logs/hostfile.101.TUVF
+dell@dell:~$
