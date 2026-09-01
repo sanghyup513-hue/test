@@ -402,3 +402,68 @@ dell@dell:~$ bash /home/dell/mlperf-8b.sh sweep
    MBS=4 GA=1  step=0.7628s  TFLOPS/GPU=2210.8
 ==================================================
 dell@dell:~$
+
+dell@dell:~$ MICRO_BATCH_SIZE=4 bash /home/dell/mlperf-8b.sh fp8attn 200
+   호스트 LD_LIBRARY_PATH 제거: /usr/local/cuda/lib64:/usr/local/cuda/lib64:
+
+==================================================
+ PERF (FP8 attention) - 200 step  <- baseline 과 A/B
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4_fp8attn.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4_fp8attn
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=True CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              200
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              MAX_STEPS=200 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=60 WALLTIME=70
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 122   stdout: /data/lsh/mlperf-8b-logs/slurm-122.out
+ 15초마다 상태를 표시합니다.
+   06:32:58  [PENDING: None]
+   06:33:13  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:33:28  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:33:43  [RUNNING]  GPU MiB [629 733 733 733 4 4 4 ]
+   06:33:58  [RUNNING]  GPU MiB [47655 5697 47655 47655 4 4 4 ]
+   06:34:14  [RUNNING]  GPU MiB [140149 140185 141333 141249 4 4 4 ]
+   06:34:29  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:34:44  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:34:59  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:35:14  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:35:29  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:35:44  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:35:59  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:36:15  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:36:30  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:36:45  [RUNNING]  GPU MiB [138063 138099 140087 139163 4 4 4 ]
+ JobID 122 종료 (경과 약 4분)
+
+
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          260901063255149923306_1.log
+ 측정 step        190 / 200  (앞 10 step warmup 제외)
+ GBS / GA       16 / 2.0
+ step 중앙값       0.7441 s
+ step 평균        0.7389 s
+ min/p90/max    0.7161 / 0.7501 / 0.7560 s   (편차 5.4%)
+ TFLOPS/GPU     2266.4
+ tokens/s       176153
+ samples/s      21.50
+ run 구간         149.2 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+==================================================
+ CODE: V6T.L8B.G4.0.7441.2266.4
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/260901063255149923306_1.log
+dell@dell:~$
+
