@@ -6,6 +6,7 @@
 #   bash mlperf-8b.sh clean                잔여 잡/컨테이너/GPU 정리
 #   bash mlperf-8b.sh check                자산·config·환경 점검
 #   bash mlperf-8b.sh doctor               실행환경 진단 (pyxis/enroot/CONT/잡 실패원인)
+#   bash mlperf-8b.sh inspect              컨테이너 내부 점검 (cuDNN / TransformerEngine)
 #   bash mlperf-8b.sh build                컨테이너 빌드
 #   bash mlperf-8b.sh prep                 데이터셋 + 토크나이저 다운로드 (~85GB)
 #
@@ -31,7 +32,8 @@ BASE="${BASE:-/data/lsh}"
 REPO="${REPO:-$BASE/training_results_v6.0/Dell/benchmarks/llama31_8b/implementations/nemo}"
 DATADIR="${DATADIR:-$BASE/mlperf_training_data}"
 LOGDIR="${LOGDIR:-$BASE/mlperf-8b-logs}"
-CONT="${CONT:-mlperf-nvidia:llama31_8b-pyt}"
+CONT="${CONT:-$BASE/llama31_8b.sqsh}"          # pyxis 용 sqsh. bare 이미지명은 동작하지 않음
+DOCKER_TAG="${DOCKER_TAG:-mlperf-nvidia:llama31_8b-pyt}"  # docker build 결과 태그
 CFG_BASE="config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh"
 CFG_ATTN="config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4_fp8attn.sh"
 NGPU=4
@@ -209,7 +211,25 @@ launch(){   # $1=config  $2=태그  $3...=추가 export (KEY=VAL)
   export NCCL_TEST="${NCCL_TEST:-1}"
   export NCCL_TEST_WALLTIME="${NCCL_TEST_WALLTIME:-5}"
   export SEED="${SEED:-1234}"
+  # 이 클러스터는 pmix 미지원(OMPI not built with SLURM PMI). 405B 런과 동일하게 pmi2.
+  export SLURM_MPI_TYPE="${SLURM_MPI_TYPE:-pmi2}"
   [ "${NO_BIND:-0}" = "1" ] && export BINDCMD=""
+
+  # sbatch 는 --export=ALL 이 기본이라 제출 쉘의 환경이 컨테이너까지 들어갑니다.
+  # 호스트 경로가 이미지의 라이브러리 탐색을 가려 "cudnn shared object not found" 를
+  # 유발하므로 명시적으로 걷어냅니다. (KEEP_HOST_ENV=1 로 무력화 가능)
+  if [ "${KEEP_HOST_ENV:-0}" != "1" ]; then
+    for e in LD_LIBRARY_PATH LD_PRELOAD PYTHONPATH PYTHONHOME CUDA_HOME CUDNN_PATH \
+             CPATH LIBRARY_PATH NCCL_ROOT MPI_HOME OPAL_PREFIX; do
+      if [ -n "${!e:-}" ]; then
+        say "   호스트 ${e} 제거: ${!e}"
+        unset "$e"
+      fi
+    done
+  fi
+  # 이미지 안에서 cuDNN 탐색이 실패할 때의 우회 (CUDNN_LIBDIR=... 로 지정)
+  [ -n "${CUDNN_LIBDIR:-}" ] && export CUDNN_PATH="$CUDNN_LIBDIR" \
+                             && export LD_LIBRARY_PATH="$CUDNN_LIBDIR"
 
   say ""
   say "=================================================="
@@ -219,6 +239,33 @@ launch(){   # $1=config  $2=태그  $3...=추가 export (KEY=VAL)
   printf " %-22s %s\n" "overrides" "$* ${NO_BIND:+NO_BIND=1}"
   printf " %-22s %s\n" "LOGDIR"    "$LOGDIR"
   say "--------------------------------------------------"
+
+  # ---- CONT 사전 검증: pyxis 는 로컬 docker 데몬을 보지 않습니다 ----
+  case "$CONT" in
+    /*.sqsh|/*.squashfs)
+      if [ ! -s "$CONT" ]; then
+        ng "CONT 파일이 없습니다: $CONT"
+        say "      enroot import -o $CONT dockerd://mlperf-nvidia:llama31_8b-pyt"
+        return 1
+      fi
+      ok "CONT = $CONT ($(du -h "$CONT" 2>/dev/null | cut -f1))" ;;
+    dockerd://*|docker://*)
+      ok "CONT = $CONT" ;;
+    *)
+      ng "CONT 형식이 잘못되었습니다: $CONT"
+      say ""
+      say "   접두사 없는 이미지명은 pyxis 가 Docker Hub 로 보내서 401 이 납니다."
+      say "   (registry-1.docker.io/v2/library/... 401 Unauthorized)"
+      say ""
+      say "   해결:"
+      say "     export ENROOT_TEMP_PATH=${BASE}/enroot-tmp && mkdir -p \$ENROOT_TEMP_PATH"
+      say "     enroot import -o ${BASE}/llama31_8b.sqsh dockerd://${CONT}"
+      say "     export CONT=${BASE}/llama31_8b.sqsh"
+      say ""
+      say "   빠른 확인용으로 dockerd://${CONT} 를 쓸 수도 있으나,"
+      say "   매 잡마다 import 를 다시 하므로 sqsh 를 권장합니다."
+      return 1 ;;
+  esac
 
   hard_clean || return 1
 
@@ -349,8 +396,31 @@ check)
 build)
   say "컨테이너 빌드  |  로그 $V"
   cd "$REPO" || exit 1
-  docker build -t "$CONT" --build-arg GIT_COMMIT_ID="$(git rev-parse --short HEAD 2>/dev/null || echo na)" . 2>&1 | tee -a "$V" | tail -20
-  docker image inspect "$CONT" >/dev/null 2>&1 && ok "빌드 완료: $CONT" || ng "빌드 실패 - $V 확인"
+  say "  base image: $(grep -m1 '^ARG FROM_IMAGE_NAME' Dockerfile | cut -d= -f2)"
+  say "  nvcr.io 로그인이 안 되어 있으면 여기서 401 이 납니다:"
+  say "    echo \$NGC_API_KEY | docker login nvcr.io -u '\$oauthtoken' --password-stdin"
+  say ""
+  docker build -t "$DOCKER_TAG" ${FROM_IMAGE_NAME:+--build-arg FROM_IMAGE_NAME=$FROM_IMAGE_NAME} \
+    --build-arg GIT_COMMIT_ID="$(git rev-parse --short HEAD 2>/dev/null || echo na)" . 2>&1 | tee -a "$V" | tail -20
+  if ! docker image inspect "$DOCKER_TAG" >/dev/null 2>&1; then
+    ng "빌드 실패 - $V 확인"; exit 1
+  fi
+  ok "빌드 완료: $DOCKER_TAG"
+  say ""
+  say "sqsh 변환 (pyxis 는 로컬 docker 이미지를 못 읽습니다). 10~20분 소요."
+  export ENROOT_TEMP_PATH="${ENROOT_TEMP_PATH:-$BASE/enroot-tmp}"
+  mkdir -p "$ENROOT_TEMP_PATH"
+  say "  ENROOT_TEMP_PATH=$ENROOT_TEMP_PATH  (여유 $(df -BG --output=avail "$ENROOT_TEMP_PATH" 2>/dev/null | tail -1 | tr -d ' '))"
+  rm -f "$CONT"
+  enroot import -o "$CONT" "dockerd://$DOCKER_TAG" 2>&1 | tee -a "$V" | tail -10
+  if [ -s "$CONT" ]; then
+    ok "sqsh 생성: $CONT ($(du -h "$CONT" | cut -f1))"
+    say ""
+    say " 다음 줄을 ~/.bashrc 에 추가하세요:"
+    say "   export CONT=$CONT"
+  else
+    ng "sqsh 변환 실패 - $V 확인 (디스크 여유/도커 권한 확인)"
+  fi
   ;;
 
 prep)
@@ -428,6 +498,46 @@ converge)
   launch "$CFG_BASE" "CONVERGE - log_ppl 3.3 목표" \
     ENABLE_RERUNS=1 SHARE_RERUNS=1 STORE_CKPTS_IN_LOGDIR=1 \
     WALLTIME_EXIT_MINUTES=10
+  ;;
+
+inspect)
+  # 컨테이너를 열어 cuDNN / TransformerEngine 상태를 확인합니다.
+  case "$CONT" in
+    /*.sqsh|/*.squashfs) [ -s "$CONT" ] || { ng "CONT 없음: $CONT"; exit 1; } ;;
+    dockerd://*|docker://*) ;;
+    *) ng "CONT 형식이 잘못되었습니다: $CONT"; exit 1 ;;
+  esac
+  say "컨테이너 내부 점검  CONT=$CONT"
+  say ""
+  say "[호스트 환경 (컨테이너로 새어 들어감)]"
+  for e in LD_LIBRARY_PATH LD_PRELOAD PYTHONPATH CUDA_HOME CUDNN_PATH; do
+    printf '   %-18s [%s]\n' "$e" "${!e:-unset}"
+  done
+  say ""
+  say "[컨테이너 내부]"
+  env -u LD_LIBRARY_PATH -u LD_PRELOAD -u PYTHONPATH -u CUDA_HOME -u CUDNN_PATH \
+  srun --ntasks=1 -N1 --time=10 \
+       --container-image="$CONT" \
+       --no-container-mount-home --container-remap-root --container-writable \
+       bash -c '
+    echo "  LD_LIBRARY_PATH = [$LD_LIBRARY_PATH]"
+    echo "  CUDNN_PATH      = [${CUDNN_PATH:-unset}]"
+    echo "  CUDNN_VERSION   = [${CUDNN_VERSION:-unset}]"
+    echo "  --- libcudnn 파일"
+    ls -l /usr/lib/x86_64-linux-gnu/libcudnn.so* 2>&1 | head -5
+    echo "  --- dpkg"
+    dpkg -l 2>/dev/null | grep -i cudnn || echo "    (cudnn 패키지 없음 - 빌드 실패)"
+    echo "  --- ldconfig 캐시"
+    ldconfig -p 2>/dev/null | grep -i cudnn | head -3 || echo "    (캐시에 없음)"
+    echo "  --- import 테스트"
+    python -c "import transformer_engine.pytorch as t; print(\"    TransformerEngine OK\")" \
+      || echo "    TransformerEngine import 실패"
+    python -c "import torch; print(\"    torch\", torch.__version__, \"cuda\", torch.version.cuda)"
+  '
+  say ""
+  say " libcudnn 파일은 있는데 import 가 실패하면:"
+  say "   CUDNN_LIBDIR=/usr/lib/x86_64-linux-gnu bash $0 smoke"
+  say " dpkg 에 cudnn 이 아예 없으면 이미지를 다시 빌드해야 합니다."
   ;;
 
 doctor)
