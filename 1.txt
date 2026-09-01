@@ -1,4 +1,153 @@
-dell@dell:~$ bash /home/dell/mlperf-8b.sh  fp8attn
+dell@dell:~$ bash /home/dell/mlperf-8b.sh  smoke
+   호스트 LD_LIBRARY_PATH 제거: /usr/local/cuda/lib64:/usr/local/cuda/lib64:
+
+==================================================
+ SMOKE - synthetic data 50 step (기능 확인, 성능 무의미)
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              50
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              USE_SYNTHETIC_DATA=1 VERIFY_MOUNTS=0 CHECK_COMPLIANCE=0 MAX_STEPS=50 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA WALLTIME_RUNANDTIME=40 WALLTIME=45
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 116   stdout: /data/lsh/mlperf-8b-logs/slurm-116.out
+ 15초마다 상태를 표시합니다.
+   06:03:21  [PENDING: None]
+   06:03:36  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:03:51  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:04:06  [RUNNING]  GPU MiB [733 733 733 733 4 4 4 ]
+   06:04:21  [RUNNING]  GPU MiB [46849 47189 46923 47297 4 4 4 ]
+   06:04:36  [RUNNING]  GPU MiB [133027 132875 131923 133835 4 4 4 ]
+   06:04:51  [RUNNING]  GPU MiB [133027 132875 131923 133835 4 4 4 ]
+   06:05:06  [RUNNING]  GPU MiB [133027 132875 131923 133835 4 4 4 ]
+   06:05:21  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+ JobID 116 종료 (경과 약 2분)
+
+
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          llama31_8b_pytorch_1x4_260901060317632720489_synth_1.log
+ 측정 step        40 / 50  (앞 10 step warmup 제외)
+ GBS / GA       16 / 2.0
+ step 중앙값       0.7199 s
+ step 평균        0.7195 s
+ min/p90/max    0.7123 / 0.7241 / 0.7262 s   (편차 1.9%)
+ TFLOPS/GPU     2342.5
+ tokens/s       182067
+ samples/s      22.22
+ run 구간         37.2 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+
+ !! synthetic data 결과입니다. 실측값으로 쓰지 마세요.
+    mock tokenizer 는 vocab 32000 (실제 128256) 이라 embedding /
+    LM head 가 약 0.8B 파라미터 작습니다. 실데이터는 더 느립니다.
+==================================================
+ CODE: V6T.L8B.G4.0.7199.2342.5.SYNTH
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/llama31_8b_pytorch_1x4_260901060317632720489_synth_1.log
+dell@dell:~$ bash /home/dell/mlperf-8b.sh  perf 200
+   호스트 LD_LIBRARY_PATH 제거: /usr/local/cuda/lib64:/usr/local/cuda/lib64:
+
+==================================================
+ PERF - 실데이터 200 step
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              200
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              MAX_STEPS=200 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=60 WALLTIME=70
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 117   stdout: /data/lsh/mlperf-8b-logs/slurm-117.out
+ 15초마다 상태를 표시합니다.
+   06:06:13  [PENDING: None]
+   06:06:28  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:06:43  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:06:58  [RUNNING]  GPU MiB [733 733 733 733 4 4 4 ]
+   06:07:13  [RUNNING]  GPU MiB [2705 2705 2705 2705 4 4 4 ]
+   06:07:28  [RUNNING]  GPU MiB [149175 149739 149723 149779 4 4 4 ]
+   06:07:43  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:07:58  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:08:13  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:08:29  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+^[[C   06:08:44  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:08:59  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:09:14  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:09:29  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:09:44  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:09:59  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:10:14  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+ JobID 117 종료 (경과 약 4분)
+
+
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          260901060609682680088_1.log
+ 측정 step        190 / 200  (앞 10 step warmup 제외)
+ GBS / GA       16 / 2.0
+ step 중앙값       0.7844 s
+ step 평균        0.7802 s
+ min/p90/max    0.7589 / 0.7919 / 0.7945 s   (편차 4.5%)
+ TFLOPS/GPU     2149.9
+ tokens/s       167103
+ samples/s      20.40
+ run 구간         157.7 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+==================================================
+ CODE: V6T.L8B.G4.0.7844.2149.9
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/260901060609682680088_1.log
+dell@dell:~$
+dell@dell:~$ bash /home/dell/mlperf-8b.sh
+# Dell XE9780 / B300  -  1 node x 4 GPU  -  NVFP4   (GBS=16, GA=2)
+#
+#  준비
+#    bash mlperf-8b.sh check       자산/config/환경 점검
+#    bash mlperf-8b.sh doctor      실행환경 진단 (pyxis/enroot/CONT/최근 잡 실패원인)
+#    bash mlperf-8b.sh build       컨테이너 빌드 + sqsh 변환
+#    bash mlperf-8b.sh prep        데이터셋 다운로드 (~85GB)
+#    bash mlperf-8b.sh inspect     컨테이너 내부 점검 (cuDNN / TransformerEngine)
+#
+#  실행
+#    bash mlperf-8b.sh dryrun      resolved config 만 출력
+#    bash mlperf-8b.sh smoke [N]   synthetic data N step 기능 확인 (기본 50)
+#    bash mlperf-8b.sh perf  [N]   성능 측정, 실데이터 (기본 200)
+#    bash mlperf-8b.sh fp8attn [N] FP8 attention A/B
+#    bash mlperf-8b.sh sweep [N]   MICRO_BATCH_SIZE 1/2/4 스윕
+#    bash mlperf-8b.sh converge    수렴 런 (log_ppl 3.3, 매우 김)
+#    bash mlperf-8b.sh nccl        NCCL 대역폭 테스트만
+#
+#  결과/정리
+#    bash mlperf-8b.sh result      최근 결과 재파싱
+#    bash mlperf-8b.sh clean       잔여 잡/컨테이너/GPU 정리
+#
+# -----------------------------------------------------------------------------
+# 성능 지표는 mllog 의 tracked_stats.train_step_time 에서 추출합니다.
+#   TFLOPS/GPU = MODEL_TFLOP_PER_SAMPLE(421.59) * GBS / step_time / NGPU
+dell@dell:~$ bash /home/dell/mlperf-8b.sh fp8attn 200
    호스트 LD_LIBRARY_PATH 제거: /usr/local/cuda/lib64:/usr/local/cuda/lib64:
 
 ==================================================
@@ -19,83 +168,237 @@ dell@dell:~$ bash /home/dell/mlperf-8b.sh  fp8attn
 --------------------------------------------------
    OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
    OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
- JobID 115   stdout: /data/lsh/mlperf-8b-logs/slurm-115.out
+ JobID 118   stdout: /data/lsh/mlperf-8b-logs/slurm-118.out
  15초마다 상태를 표시합니다.
-   05:45:23  [PENDING: None]
-   05:45:38  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
-   05:45:53  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
-   05:46:08  [RUNNING]  GPU MiB [733 733 733 733 4 4 4 ]
-   05:46:23  [RUNNING]  GPU MiB [50343 50625 51155 51197 4 4 4 ]
-   05:46:39  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:46:54  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:47:09  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:47:24  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:47:39  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:47:54  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:48:09  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:48:24  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:48:39  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:48:55  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
-   05:49:10  [RUNNING]  GPU MiB [138063 138099 140087 139163 4 4 4 ]
- JobID 115 종료 (경과 약 4분)
-   --   학습 step 이 기록되지 않았습니다.
+   06:13:04  [PENDING: None]
+   06:13:19  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:13:34  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:13:49  [RUNNING]  GPU MiB [627 627 627 627 4 4 4 ]
+   06:14:04  [RUNNING]  GPU MiB [2705 2705 2705 2705 4 4 4 ]
+   06:14:20  [RUNNING]  GPU MiB [140145 140181 141329 141245 4 4 4 ]
+   06:14:35  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:14:50  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:15:05  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:15:20  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:15:35  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:15:50  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:16:05  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:16:21  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:16:36  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   06:16:51  [RUNNING]  GPU MiB [139519 139555 141543 140619 4 4 4 ]
+   06:17:06  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+ JobID 118 종료 (경과 약 4분)
 
-[slurm 상태]
 
-[slurm stdout 마지막 50줄]  /data/lsh/mlperf-8b-logs/slurm-115.out
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241732578, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7501542568206787, "reduced_train_loss": 6.799065589904785}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2880}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241733329, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7556896209716797, "reduced_train_loss": 6.762381553649902}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2896}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241734081, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7509644031524658, "reduced_train_loss": 6.87890100479126}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2912}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241734830, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7525801658630371, "reduced_train_loss": 6.85154914855957}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2928}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241735582, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7485182285308838, "reduced_train_loss": 6.711403846740723}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2944}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241736334, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7523312568664551, "reduced_train_loss": 6.815382480621338}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2960}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241737081, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.751659631729126, "reduced_train_loss": 6.736054420471191}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2976}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241737829, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7473602294921875, "reduced_train_loss": 6.76362419128418}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2992}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241738583, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7475383281707764, "reduced_train_loss": 6.797550678253174}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3008}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241739332, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.754035234451294, "reduced_train_loss": 6.792595863342285}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3024}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241740083, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7495086193084717, "reduced_train_loss": 6.703741073608398}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3040}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241740835, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7505395412445068, "reduced_train_loss": 6.737958908081055}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3056}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241741587, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7525484561920166, "reduced_train_loss": 6.939172744750977}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3072}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241742340, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7514772415161133, "reduced_train_loss": 6.812389850616455}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3088}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241743089, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7538609504699707, "reduced_train_loss": 6.797235488891602}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3104}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241743841, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7484703063964844, "reduced_train_loss": 6.765529155731201}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3120}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241744592, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7516121864318848, "reduced_train_loss": 6.738685607910156}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3136}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241745345, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.75101637840271, "reduced_train_loss": 6.7857866287231445}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3152}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241746095, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7535302639007568, "reduced_train_loss": 6.73771858215332}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3168}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241746846, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7495810985565186, "reduced_train_loss": 6.684024333953857}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3184}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241746846, "event_type": "INTERVAL_END", "key": "block_stop", "value": null, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 273, "samples_count": 12288, "step": 199}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788241746846, "event_type": "INTERVAL_END", "key": "run_stop", "value": null, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 253, "samples_count": 3184, "status": "aborted"}}
-   0: Deleting CUDA graphs
-   0: [after training is done] datetime: 2026-09-01 05:49:07
-   + RUN_AND_TIME_EXIT_STATUS=0
-   ++ date +%s
-   + echo 'RUNANDTIME_STOP 1788241754'
-   RUNANDTIME_STOP 1788241754
-   + echo 0
-   + set -e
-   + '[' 0 -eq 1 ']'
-   + [[ 0 -eq 1 ]]
-   + '[' 1 -eq 1 ']'
-   + '[' 7 -gt 0 ']'
-   + '[' 1 == 1 ']'
-   /var/spool/slurmd/job00115/slurm_script: line 528: CUDA_COREDUMP_HOSTDIR: unbound variable
-   + '[' -n '' ']'
-   + '[' 0 -eq 1 ']'
-   ++ date +%s
-   + echo 'EXPERIMENT_STOP 1788241754'
-   EXPERIMENT_STOP 1788241754
-   + [[ -n '' ]]
-   + cleanup_containers
-   + cleanup_npy_index_dir
-   + [[ 1 -gt 0 ]]
-   + rm -rf /data/lsh/mlperf-8b-logs/260901054520041655034_npy_index
-   + cleanup_pyxis
-   + srun --ntasks-per-node=1 /bin/bash -c 'if [[ "$(enroot list)" ]]; then enroot remove -f $(enroot list); fi'
-   + [[ -f /data/lsh/mlperf-8b-logs/hostfile.115.ZA0L ]]
-   + rm -f /data/lsh/mlperf-8b-logs/hostfile.115.ZA0L
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          260901061301120736255_1.log
+ 측정 step        190 / 200  (앞 10 step warmup 제외)
+ GBS / GA       16 / 2.0
+ step 중앙값       0.7443 s
+ step 평균        0.7386 s
+ min/p90/max    0.7175 / 0.7495 / 0.7545 s   (편차 5.0%)
+ TFLOPS/GPU     2265.7
+ tokens/s       176100
+ samples/s      21.50
+ run 구간         149.1 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+==================================================
+ CODE: V6T.L8B.G4.0.7443.2265.7
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/260901061301120736255_1.log
+dell@dell:~$ bash /home/dell/mlperf-8b.sh sweep
 
-[치명적 에러 후보]  (MPI_Init / pmix / cpuset.mems 는 무해합니다)
-   293:+ [[ -f /data/lsh/training_results_v6.0/Dell/benchmarks/llama31_8b/implementations/nemo/scripts/tracebacks/hang_monitor.sh ]]
+########## MICRO_BATCH_SIZE=1  (GA=4) ##########
+   호스트 LD_LIBRARY_PATH 제거: /usr/local/cuda/lib64:/usr/local/cuda/lib64:
 
- 점검:  bash /home/dell/mlperf-8b.sh doctor    /    bash /home/dell/mlperf-8b.sh inspect
+==================================================
+ SWEEP MBS=1
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 1, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              150
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              MICRO_BATCH_SIZE=1 MAX_STEPS=150 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=50 WALLTIME=60
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 119   stdout: /data/lsh/mlperf-8b-logs/slurm-119.out
+ 15초마다 상태를 표시합니다.
+   06:17:53  [PENDING: None]
+   06:18:08  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:18:23  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:18:39  [RUNNING]  GPU MiB [733 733 733 733 4 4 4 ]
+   06:18:54  [RUNNING]  GPU MiB [47655 47655 47655 47655 4 4 4 ]
+   06:19:09  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:19:24  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:19:39  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:19:54  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:20:09  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:20:24  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:20:39  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:20:55  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:21:10  [RUNNING]  GPU MiB [110187 110767 111911 112071 4 4 4 ]
+   06:21:25  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+ JobID 119 종료 (경과 약 3분)
+
+
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          260901061750068149634_1.log
+ 측정 step        140 / 150  (앞 10 step warmup 제외)
+ GBS / GA       16 / 4.0
+ step 중앙값       0.8203 s
+ step 평균        0.8155 s
+ min/p90/max    0.7981 / 0.8278 / 0.8312 s   (편차 4.0%)
+ TFLOPS/GPU     2055.8
+ tokens/s       159787
+ samples/s      19.51
+ run 구간         124.1 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+==================================================
+ CODE: V6T.L8B.G4.0.8203.2055.8
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/260901061750068149634_1.log
+
+########## MICRO_BATCH_SIZE=2  (GA=2) ##########
+
+==================================================
+ SWEEP MBS=2
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              150
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              MICRO_BATCH_SIZE=2 MAX_STEPS=150 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=50 WALLTIME=60
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 120   stdout: /data/lsh/mlperf-8b-logs/slurm-120.out
+ 15초마다 상태를 표시합니다.
+   06:21:49  [PENDING: None]
+   06:22:04  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:22:19  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:22:34  [RUNNING]  GPU MiB [627 627 627 627 4 4 4 ]
+   06:22:49  [RUNNING]  GPU MiB [2705 2705 2705 2705 4 4 4 ]
+   06:23:04  [RUNNING]  GPU MiB [149175 149739 149719 149775 4 4 4 ]
+   06:23:19  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:23:34  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:23:50  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:24:05  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:24:20  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:24:35  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:24:50  [RUNNING]  GPU MiB [149179 149743 149723 149779 4 4 4 ]
+   06:25:05  [RUNNING]  GPU MiB [147093 147657 147637 147693 4 4 4 ]
+ JobID 120 종료 (경과 약 3분)
+
+
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          260901062145735251579_1.log
+ 측정 step        140 / 150  (앞 10 step warmup 제외)
+ GBS / GA       16 / 2.0
+ step 중앙값       0.7804 s
+ step 평균        0.7765 s
+ min/p90/max    0.7584 / 0.7884 / 0.7927 s   (편차 4.4%)
+ TFLOPS/GPU     2160.8
+ tokens/s       167949
+ samples/s      20.50
+ run 구간         118.1 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+==================================================
+ CODE: V6T.L8B.G4.0.7804.2160.8
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/260901062145735251579_1.log
+
+########## MICRO_BATCH_SIZE=4  (GA=1) ##########
+
+==================================================
+ SWEEP MBS=4
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 4, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              150
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              MICRO_BATCH_SIZE=4 MAX_STEPS=150 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=50 WALLTIME=60
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 121   stdout: /data/lsh/mlperf-8b-logs/slurm-121.out
+ 15초마다 상태를 표시합니다.
+   06:25:29  [PENDING: None]
+   06:25:44  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:25:59  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   06:26:14  [RUNNING]  GPU MiB [627 627 627 627 4 4 4 ]
+   06:26:29  [RUNNING]  GPU MiB [2705 2705 2705 2705 4 4 4 ]
+   06:26:44  [RUNNING]  GPU MiB [207053 204977 209147 209133 4 4 4 ]
+   06:27:00  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:27:15  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:27:30  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:27:45  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:28:00  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:28:15  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:28:30  [RUNNING]  GPU MiB [207055 204977 209147 209133 4 4 4 ]
+   06:28:45  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+ JobID 121 종료 (경과 약 3분)
+
+
+==================================================
+ llama31_8b  4GPU (TP1 PP1 CP1 x DP4)  GBS 16
+==================================================
+ mllog          260901062526020235889_1.log
+ 측정 step        140 / 150  (앞 10 step warmup 제외)
+ GBS / GA       16 / 1.0
+ step 중앙값       0.7628 s
+ step 평균        0.7610 s
+ min/p90/max    0.7401 / 0.7784 / 0.7834 s   (편차 5.7%)
+ TFLOPS/GPU     2210.8
+ tokens/s       171835
+ samples/s      20.98
+ run 구간         115.7 s
+ run_stop       aborted
+                (MAX_STEPS 도달로 정상 종료. 수렴 런이 아니면 기대값입니다)
+==================================================
+ CODE: V6T.L8B.G4.0.7628.2210.8
+==================================================
+ GPU MiB        4 4 4 4 4 4 4
+ 상세: /data/lsh/mlperf-8b-logs/260901062526020235889_1.log
+
+==================================================
+ MICRO_BATCH_SIZE 스윕 결과 (GBS=16 불변)
+==================================================
+   MBS=1 GA=4  step=0.8203s  TFLOPS/GPU=2055.8
+   MBS=2 GA=2  step=0.7804s  TFLOPS/GPU=2160.8
+   MBS=4 GA=1  step=0.7628s  TFLOPS/GPU=2210.8
+==================================================
 dell@dell:~$
