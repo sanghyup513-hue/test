@@ -101,6 +101,7 @@ show_cfg(){
   printf " %-22s %s\n" "lr/warmup"   "LR ${LR}  WARMUP ${WARMUP_STEPS}  decay_steps ${OPT_LR_DECAY_STEPS}"
   printf " %-22s %s\n" "eval"        "VAL_CHECK_INTERVAL ${VAL_CHECK_INTERVAL} (auto=$(( (12288 + GBS - 1) / GBS )))  VAL_SAMPLES ${VAL_SAMPLES}"
   printf " %-22s %s\n" "max_steps"   "${MAX_STEPS}"
+  printf " %-22s %s\n" "CUDNN_PATH"  "${CUDNN_PATH:-(런처가 설정)}"
   # GBS 정합성 자체 검사
   local auto=$(( (12288 + GBS - 1) / GBS ))
   [ "$VAL_CHECK_INTERVAL" -ne "$auto" ] && \
@@ -219,7 +220,7 @@ launch(){   # $1=config  $2=태그  $3...=추가 export (KEY=VAL)
   # 호스트 경로가 이미지의 라이브러리 탐색을 가려 "cudnn shared object not found" 를
   # 유발하므로 명시적으로 걷어냅니다. (KEEP_HOST_ENV=1 로 무력화 가능)
   if [ "${KEEP_HOST_ENV:-0}" != "1" ]; then
-    for e in LD_LIBRARY_PATH LD_PRELOAD PYTHONPATH PYTHONHOME CUDA_HOME CUDNN_PATH \
+    for e in LD_LIBRARY_PATH LD_PRELOAD PYTHONPATH PYTHONHOME CUDA_HOME \
              CPATH LIBRARY_PATH NCCL_ROOT MPI_HOME OPAL_PREFIX; do
       if [ -n "${!e:-}" ]; then
         say "   호스트 ${e} 제거: ${!e}"
@@ -227,9 +228,16 @@ launch(){   # $1=config  $2=태그  $3...=추가 export (KEY=VAL)
       fi
     done
   fi
-  # 이미지 안에서 cuDNN 탐색이 실패할 때의 우회 (CUDNN_LIBDIR=... 로 지정)
-  [ -n "${CUDNN_LIBDIR:-}" ] && export CUDNN_PATH="$CUDNN_LIBDIR" \
-                             && export LD_LIBRARY_PATH="$CUDNN_LIBDIR"
+  # ---- cuDNN 탐색 경로 ----
+  # TransformerEngine 의 _load_cuda_library_from_system 은
+  #   CUDNN_HOME -> CUDNN_PATH -> CUDA_HOME -> CUDA_PATH -> /usr/local/cuda
+  # 순으로 {path}/**/libcudnn.so* 를 찾고, 실패하면 버전 없는 "libcudnn.so" 를
+  # dlopen 합니다. 이 이미지는 런타임 패키지만 설치되어 libcudnn.so 심볼릭 링크가
+  # 없고, cuDNN 은 /usr/local/cuda 가 아니라 /usr/lib/x86_64-linux-gnu 에 있어
+  # 다섯 경로가 모두 빗나갑니다. CUDNN_PATH 를 명시해 해결합니다.
+  # (LD_LIBRARY_PATH 는 건드리지 않습니다 - 이미지의 torch/lib, cuda/compat/lib 가
+  #  지워지면 더 큰 문제가 생깁니다.)
+  export CUDNN_PATH="${CUDNN_PATH:-/usr/lib/x86_64-linux-gnu}"
 
   say ""
   say "=================================================="
@@ -535,9 +543,10 @@ inspect)
     python -c "import torch; print(\"    torch\", torch.__version__, \"cuda\", torch.version.cuda)"
   '
   say ""
-  say " libcudnn 파일은 있는데 import 가 실패하면:"
-  say "   CUDNN_LIBDIR=/usr/lib/x86_64-linux-gnu bash $0 smoke"
-  say " dpkg 에 cudnn 이 아예 없으면 이미지를 다시 빌드해야 합니다."
+  say " 위에서 'CUDNN_PATH 적용 후' 만 OK 라면 런처가 이미 자동으로 처리합니다."
+  say " 둘 다 실패하면 이미지에 심볼릭 링크를 추가해 재빌드하세요:"
+  say "   RUN ln -sf /usr/lib/x86_64-linux-gnu/libcudnn.so.9 \\"
+  say "              /usr/lib/x86_64-linux-gnu/libcudnn.so"
   ;;
 
 doctor)
