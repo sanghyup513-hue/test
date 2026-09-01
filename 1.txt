@@ -1,116 +1,101 @@
-dell@dell:~$ CUDNN_LIBDIR=/usr/lib/x86_64-linux-gnu bash /home/dell/mlperf-8b.sh smoke
+dell@dell:~$ bash /home/dell/mlperf-8b.sh  fp8attn
    호스트 LD_LIBRARY_PATH 제거: /usr/local/cuda/lib64:/usr/local/cuda/lib64:
 
 ==================================================
- SMOKE - synthetic data 50 step (기능 확인)
+ PERF (FP8 attention) - 200 step  <- baseline 과 A/B
 ==================================================
- config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
- DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4_fp8attn.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4_fp8attn
  topology               1node x 4gpu = WS 4
  parallelism            TP1 PP1 CP1 -> DP4
  batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
- precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ precision              FP4=True recipe=nvfp4 FP8_DPA=True CUDA_GRAPH=1
  lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
  eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
- max_steps              50
- overrides              USE_SYNTHETIC_DATA=1 VERIFY_MOUNTS=0 CHECK_COMPLIANCE=0 MAX_STEPS=50 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA NCCL_TEST=1 WALLTIME_RUNANDTIME=40 WALLTIME=45
+ max_steps              200
+ CUDNN_PATH             /usr/lib/x86_64-linux-gnu
+ overrides              MAX_STEPS=200 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA CHECK_COMPLIANCE=0 WALLTIME_RUNANDTIME=60 WALLTIME=70
  LOGDIR                 /data/lsh/mlperf-8b-logs
 --------------------------------------------------
    OK   CONT = /data/lsh/llama31_8b.sqsh (20G)
    OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
- JobID 109  제출됨   stdout: /data/lsh/mlperf-8b-logs/slurm-109.out
+ JobID 115   stdout: /data/lsh/mlperf-8b-logs/slurm-115.out
  15초마다 상태를 표시합니다.
-   05:17:13  [PENDING: None]
-   05:17:28  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
-   05:17:43  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
-   05:17:58  [RUNNING]  GPU MiB [733 733 733 733 4 4 4 ]
-   05:18:14  [RUNNING]  GPU MiB [47685 47987 47633 48007 4 4 4 ]
-   05:18:29  [RUNNING]  GPU MiB [133027 132875 131923 133835 4 4 4 ]
-   05:18:44  [RUNNING]  GPU MiB [133027 132875 131923 133835 4 4 4 ]
-   05:18:59  [RUNNING]  GPU MiB [132595 132239 131445 133351 4 4 4 ]
- JobID 109 큐에서 내려감 (경과 약 2분)
+   05:45:23  [PENDING: None]
+   05:45:38  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   05:45:53  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   05:46:08  [RUNNING]  GPU MiB [733 733 733 733 4 4 4 ]
+   05:46:23  [RUNNING]  GPU MiB [50343 50625 51155 51197 4 4 4 ]
+   05:46:39  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:46:54  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:47:09  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:47:24  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:47:39  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:47:54  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:48:09  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:48:24  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:48:39  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:48:55  [RUNNING]  GPU MiB [140149 140185 142173 141249 4 4 4 ]
+   05:49:10  [RUNNING]  GPU MiB [138063 138099 140087 139163 4 4 4 ]
+ JobID 115 종료 (경과 약 4분)
+   --   학습 step 이 기록되지 않았습니다.
 
-[slurm 종료 상태]
-   --   run.sub 이 정상 완료되지 않았습니다.
+[slurm 상태]
 
-[slurm stdout 마지막 60줄]  /data/lsh/mlperf-8b-logs/slurm-109.out
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239915549, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7174253463745117, "reduced_train_loss": 0.16600480675697327}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 272}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239916263, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7158589363098145, "reduced_train_loss": 0.08461019396781921}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 288}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239916977, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7138261795043945, "reduced_train_loss": 0.0954115241765976}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 304}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239917695, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7146527767181396, "reduced_train_loss": 0.06940604001283646}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 320}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239918416, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.718069314956665, "reduced_train_loss": 0.13120895624160767}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 336}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239919134, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7209885120391846, "reduced_train_loss": 0.05300680547952652}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 352}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239919853, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7196445465087891, "reduced_train_loss": 0.0760486051440239}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 368}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239920573, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7171432971954346, "reduced_train_loss": 0.10341069847345352}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 384}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239921294, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.719519853591919, "reduced_train_loss": 0.07365794479846954}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 400}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239922014, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7216339111328125, "reduced_train_loss": 0.06770721077919006}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 416}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239922736, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7196197509765625, "reduced_train_loss": 0.0906301885843277}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 432}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239923460, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7223961353302002, "reduced_train_loss": 0.3927227556705475}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 448}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239924180, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7232792377471924, "reduced_train_loss": 0.26359593868255615}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 464}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239924903, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7200140953063965, "reduced_train_loss": 0.13784335553646088}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 480}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239925628, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7236928939819336, "reduced_train_loss": 0.11529078334569931}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 496}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239926349, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7249596118927002, "reduced_train_loss": 0.30131447315216064}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 512}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239927075, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7204701900482178, "reduced_train_loss": 0.4603804647922516}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 528}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239927799, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7264385223388672, "reduced_train_loss": 0.23746076226234436}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 544}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239928524, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7243380546569824, "reduced_train_loss": 0.04628204554319382}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 560}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239929242, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7246053218841553, "reduced_train_loss": 0.0593712218105793}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 576}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239929959, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7179892063140869, "reduced_train_loss": 0.04794108122587204}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 592}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239930681, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7163138389587402, "reduced_train_loss": 0.07404351979494095}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 608}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239931394, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7226731777191162, "reduced_train_loss": 0.05472993850708008}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 624}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239932113, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7132408618927002, "reduced_train_loss": 0.04262804985046387}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 640}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239932833, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.718574047088623, "reduced_train_loss": 0.03791475296020508}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 656}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239933557, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7202701568603516, "reduced_train_loss": 0.053340308368206024}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 672}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239934275, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7242653369903564, "reduced_train_loss": 0.02942400798201561}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 688}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239934997, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.717449426651001, "reduced_train_loss": 0.049456141889095306}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 704}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239935719, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7221524715423584, "reduced_train_loss": 0.05015403777360916}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 720}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239936437, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7216572761535645, "reduced_train_loss": 0.04138224944472313}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 736}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239937152, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7183232307434082, "reduced_train_loss": 0.04520740732550621}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 752}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239937876, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7153842449188232, "reduced_train_loss": 0.1297798603773117}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 768}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239938598, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7234089374542236, "reduced_train_loss": 0.033399827778339386}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 784}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239938599, "event_type": "INTERVAL_END", "key": "block_stop", "value": null, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 273, "samples_count": 12288, "step": 49}}
-   0: :::MLLOG {"namespace": "", "time_ms": 1788239938599, "event_type": "INTERVAL_END", "key": "run_stop", "value": null, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 253, "samples_count": 784, "status": "aborted"}}
+[slurm stdout 마지막 50줄]  /data/lsh/mlperf-8b-logs/slurm-115.out
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241732578, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7501542568206787, "reduced_train_loss": 6.799065589904785}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2880}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241733329, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7556896209716797, "reduced_train_loss": 6.762381553649902}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2896}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241734081, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7509644031524658, "reduced_train_loss": 6.87890100479126}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2912}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241734830, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7525801658630371, "reduced_train_loss": 6.85154914855957}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2928}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241735582, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7485182285308838, "reduced_train_loss": 6.711403846740723}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2944}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241736334, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7523312568664551, "reduced_train_loss": 6.815382480621338}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2960}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241737081, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.751659631729126, "reduced_train_loss": 6.736054420471191}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2976}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241737829, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7473602294921875, "reduced_train_loss": 6.76362419128418}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 2992}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241738583, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7475383281707764, "reduced_train_loss": 6.797550678253174}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3008}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241739332, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.754035234451294, "reduced_train_loss": 6.792595863342285}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3024}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241740083, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7495086193084717, "reduced_train_loss": 6.703741073608398}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3040}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241740835, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7505395412445068, "reduced_train_loss": 6.737958908081055}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3056}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241741587, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7525484561920166, "reduced_train_loss": 6.939172744750977}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3072}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241742340, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7514772415161133, "reduced_train_loss": 6.812389850616455}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3088}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241743089, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7538609504699707, "reduced_train_loss": 6.797235488891602}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3104}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241743841, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7484703063964844, "reduced_train_loss": 6.765529155731201}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3120}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241744592, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7516121864318848, "reduced_train_loss": 6.738685607910156}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3136}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241745345, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.75101637840271, "reduced_train_loss": 6.7857866287231445}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3152}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241746095, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7535302639007568, "reduced_train_loss": 6.73771858215332}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3168}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241746846, "event_type": "POINT_IN_TIME", "key": "tracked_stats", "value": {"train_step_time": 0.7495810985565186, "reduced_train_loss": 6.684024333953857}, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 328, "samples_count": 3184}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241746846, "event_type": "INTERVAL_END", "key": "block_stop", "value": null, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 273, "samples_count": 12288, "step": 199}}
+   0: :::MLLOG {"namespace": "", "time_ms": 1788241746846, "event_type": "INTERVAL_END", "key": "run_stop", "value": null, "metadata": {"file": "/workspace/llm/callback_logging.py", "lineno": 253, "samples_count": 3184, "status": "aborted"}}
    0: Deleting CUDA graphs
-   0: [after training is done] datetime: 2026-09-01 05:18:58
+   0: [after training is done] datetime: 2026-09-01 05:49:07
    + RUN_AND_TIME_EXIT_STATUS=0
    ++ date +%s
-   + echo 'RUNANDTIME_STOP 1788239946'
-   RUNANDTIME_STOP 1788239946
+   + echo 'RUNANDTIME_STOP 1788241754'
+   RUNANDTIME_STOP 1788241754
    + echo 0
    + set -e
    + '[' 0 -eq 1 ']'
    + [[ 0 -eq 1 ]]
    + '[' 1 -eq 1 ']'
-   + '[' 0 -gt 0 ']'
+   + '[' 7 -gt 0 ']'
+   + '[' 1 == 1 ']'
+   /var/spool/slurmd/job00115/slurm_script: line 528: CUDA_COREDUMP_HOSTDIR: unbound variable
+   + '[' -n '' ']'
    + '[' 0 -eq 1 ']'
    ++ date +%s
-   + echo 'EXPERIMENT_STOP 1788239946'
-   EXPERIMENT_STOP 1788239946
+   + echo 'EXPERIMENT_STOP 1788241754'
+   EXPERIMENT_STOP 1788241754
    + [[ -n '' ]]
    + cleanup_containers
    + cleanup_npy_index_dir
    + [[ 1 -gt 0 ]]
-   + rm -rf /data/lsh/mlperf-8b-logs/260901051714181580737_npy_index
+   + rm -rf /data/lsh/mlperf-8b-logs/260901054520041655034_npy_index
    + cleanup_pyxis
    + srun --ntasks-per-node=1 /bin/bash -c 'if [[ "$(enroot list)" ]]; then enroot remove -f $(enroot list); fi'
-   + [[ -f /data/lsh/mlperf-8b-logs/hostfile.109.BoXm ]]
-   + rm -f /data/lsh/mlperf-8b-logs/hostfile.109.BoXm
+   + [[ -f /data/lsh/mlperf-8b-logs/hostfile.115.ZA0L ]]
+   + rm -f /data/lsh/mlperf-8b-logs/hostfile.115.ZA0L
 
-[에러 후보 라인]
-   258:cat: /sys/fs/cgroup/cpuset/slurm/cpuset.mems: No such file or directory
-   282:[dell:2158049] OPAL ERROR: Unreachable in file pmix3x_client.c at line 111
-   285:but OMPI was not built with SLURM's PMI support and therefore cannot
-   299:*** An error occurred in MPI_Init
-   301:*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
-   303:[dell:2158049] Local abort before MPI_INIT completed completed successfully, but am not able to aggregate error messages, and not able to guarantee that all other processes were killed!
-   304:[dell:2158050] OPAL ERROR: Unreachable in file pmix3x_client.c at line 111
-   305:[dell:2158051] OPAL ERROR: Unreachable in file pmix3x_client.c at line 111
-   308:but OMPI was not built with SLURM's PMI support and therefore cannot
-   324:but OMPI was not built with SLURM's PMI support and therefore cannot
-   338:*** An error occurred in MPI_Init
-   340:*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
-   342:[dell:2158051] Local abort before MPI_INIT completed completed successfully, but am not able to aggregate error messages, and not able to guarantee that all other processes were killed!
-   343:*** An error occurred in MPI_Init
-   345:*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[치명적 에러 후보]  (MPI_Init / pmix / cpuset.mems 는 무해합니다)
+   293:+ [[ -f /data/lsh/training_results_v6.0/Dell/benchmarks/llama31_8b/implementations/nemo/scripts/tracebacks/hang_monitor.sh ]]
 
- 점검:  bash /home/dell/mlperf-8b.sh doctor
+ 점검:  bash /home/dell/mlperf-8b.sh doctor    /    bash /home/dell/mlperf-8b.sh inspect
 dell@dell:~$
