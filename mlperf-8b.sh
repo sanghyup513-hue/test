@@ -176,9 +176,9 @@ has_steps(){ python3 -c "$PARSE_PY" "$1" "$NGPU" "$TFLOP_PER_SAMPLE" "$SEQLEN" 2
 find_mllog(){  # $1 = DATESTAMP (없으면 최신)
   local ds="${1:-}"
   if [ -n "$ds" ]; then
-    ls -1t "$LOGDIR"/*"${ds}"*_[0-9][0-9].log 2>/dev/null | grep -v mountcheck | head -1
+    ls -1t "$LOGDIR"/*"${ds}"*.log 2>/dev/null | grep -v mountcheck | grep -E '_[0-9]+\.log$' | head -1
   else
-    ls -1t "$LOGDIR"/*_[0-9][0-9].log 2>/dev/null | grep -v mountcheck | head -1
+    ls -1t "$LOGDIR"/*.log 2>/dev/null | grep -v mountcheck | grep -E '_[0-9]+\.log$' | head -1
   fi
 }
 
