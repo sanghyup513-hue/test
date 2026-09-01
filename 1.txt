@@ -1,4 +1,109 @@
-export ENROOT_TEMP_PATH=/data/lsh/enroot-tmp
-mkdir -p "$ENROOT_TEMP_PATH"
-cd /data/lsh
-enroot import -o /data/lsh/llama31_8b.sqsh dockerd://mlperf-nvidia:llama31_8b-pyt
+
+==================================================
+ SMOKE - synthetic data 50 step (기능 확인)
+==================================================
+ config                 config_XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4.sh
+ DGXSYSTEM              XE9780_B300_1x4x4xtp1pp1cp1_8b_fp4
+ topology               1node x 4gpu = WS 4
+ parallelism            TP1 PP1 CP1 -> DP4
+ batch                  MINIBS 4 x DP 4 = GBS 16   (MBS 2, GA 2)
+ precision              FP4=True recipe=nvfp4 FP8_DPA=False CUDA_GRAPH=1
+ lr/warmup              LR 0.0004  WARMUP 16  decay_steps 1200000
+ eval                   VAL_CHECK_INTERVAL 768 (auto=768)  VAL_SAMPLES 1024
+ max_steps              50
+ overrides              USE_SYNTHETIC_DATA=1 VERIFY_MOUNTS=0 CHECK_COMPLIANCE=0 MAX_STEPS=50 LOG_EVERY_N_STEPS=1 LOG_METRICS=DELTA NCCL_TEST=1 WALLTIME_RUNANDTIME=40 WALLTIME=45
+ LOGDIR                 /data/lsh/mlperf-8b-logs
+--------------------------------------------------
+   OK   GPU 전부 비움 [4 4 4 4 4 4 4 ]   대기잡 0개
+ JobID 106  제출됨   stdout: /data/lsh/mlperf-8b-logs/slurm-106.out
+ 15초마다 상태를 표시합니다.
+   05:07:21  [PENDING: None]
+   05:07:36  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   05:07:51  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+   05:08:06  [RUNNING]  GPU MiB [4 4 4 4 4 4 4 ]
+ JobID 106 큐에서 내려감 (경과 약 1분)
+
+[slurm 종료 상태]
+   --   run.sub 이 정상 완료되지 않았습니다.
+
+[slurm stdout 마지막 60줄]  /data/lsh/mlperf-8b-logs/slurm-106.out
+   1:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/tensor_parallel/cross_entropy.py", line 7, in <module>
+   1:     from megatron.core.parallel_state import (
+   1:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/parallel_state.py", line 17, in <module>
+   1:     from .utils import GlobalMemoryBuffer, is_torch_min_version
+   1:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/utils.py", line 46, in <module>
+   1:     from megatron.core.dist_checkpointing.mapping import ShardedTensor
+   0:     from megatron.core.dist_checkpointing.mapping import ShardedTensor
+   0:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/dist_checkpointing/__init__.py", line 5, in <module>
+   0:     from .serialization import (
+   0:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/dist_checkpointing/serialization.py", line 33, in <module>
+   0:     from .strategies.torch import TorchDistLoadShardedStrategy, TorchDistSaveShardedStrategy
+   1:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/dist_checkpointing/__init__.py", line 5, in <module>
+   1:     from .serialization import (
+   1:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/dist_checkpointing/serialization.py", line 33, in <module>
+   1:     from .strategies.torch import TorchDistLoadShardedStrategy, TorchDistSaveShardedStrategy
+   1:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/dist_checkpointing/strategies/torch.py", line 70, in <module>
+   0:   File "/workspace/Megatron-Bridge/3rdparty/Megatron-LM/megatron/core/dist_checkpointing/strategies/torch.py", line 70, in <module>
+   0:     from transformer_engine.pytorch.float8_tensor import Float8Tensor
+   0:   File "/usr/local/lib/python3.12/dist-packages/transformer_engine/__init__.py", line 11, in <module>
+   1:     from transformer_engine.pytorch.float8_tensor import Float8Tensor
+   1:   File "/usr/local/lib/python3.12/dist-packages/transformer_engine/__init__.py", line 11, in <module>
+   1:     import transformer_engine.common
+   1:   File "/usr/local/lib/python3.12/dist-packages/transformer_engine/common/__init__.py", line 369, in <module>
+   0:     import transformer_engine.common
+   0:   File "/usr/local/lib/python3.12/dist-packages/transformer_engine/common/__init__.py", line 369, in <module>
+   1:     _, _CUDNN_LIB_CTYPES = _load_cuda_library("cudnn")
+   0:     _, _CUDNN_LIB_CTYPES = _load_cuda_library("cudnn")
+   1:                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   1:   File "/usr/local/lib/python3.12/dist-packages/transformer_engine/common/__init__.py", line 354, in _load_cuda_library
+   0:                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   0:   File "/usr/local/lib/python3.12/dist-packages/transformer_engine/common/__init__.py", line 354, in _load_cuda_library
+   1:     raise RuntimeError(f"{lib_name} shared object not found.")
+   0:     raise RuntimeError(f"{lib_name} shared object not found.")
+   1: RuntimeError: cudnn shared object not found.
+   0: RuntimeError: cudnn shared object not found.
+   srun: error: dell: tasks 0-1,3: Exited with exit code 1
+   srun: error: dell: task 2: Exited with exit code 1
+   + RUN_AND_TIME_EXIT_STATUS=1
+   ++ date +%s
+   + echo 'RUNANDTIME_STOP 1788239279'
+   RUNANDTIME_STOP 1788239279
+   + echo 1
+   + set -e
+   + '[' 0 -eq 1 ']'
+   + [[ 0 -eq 1 ]]
+   + '[' 1 -eq 1 ']'
+   + '[' 0 -gt 0 ']'
+   + '[' 0 -eq 1 ']'
+   ++ date +%s
+   + echo 'EXPERIMENT_STOP 1788239279'
+   EXPERIMENT_STOP 1788239279
+   + [[ -n '' ]]
+   + cleanup_containers
+   + cleanup_npy_index_dir
+   + [[ 1 -gt 0 ]]
+   + rm -rf /data/lsh/mlperf-8b-logs/260901050722176198724_npy_index
+   + cleanup_pyxis
+   + srun --ntasks-per-node=1 /bin/bash -c 'if [[ "$(enroot list)" ]]; then enroot remove -f $(enroot list); fi'
+   + [[ -f /data/lsh/mlperf-8b-logs/hostfile.106.vWru ]]
+   + rm -f /data/lsh/mlperf-8b-logs/hostfile.106.vWru
+
+[에러 후보 라인]
+   258:cat: /sys/fs/cgroup/cpuset/slurm/cpuset.mems: No such file or directory
+   282:[dell:2147267] OPAL ERROR: Unreachable in file pmix3x_client.c at line 111
+   283:[dell:2147268] OPAL ERROR: Unreachable in file pmix3x_client.c at line 111
+   286:but OMPI was not built with SLURM's PMI support and therefore cannot
+   300:*** An error occurred in MPI_Init
+   302:*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+   304:[dell:2147267] Local abort before MPI_INIT completed completed successfully, but am not able to aggregate error messages, and not able to guarantee that all other processes were killed!
+   307:but OMPI was not built with SLURM's PMI support and therefore cannot
+   321:*** An error occurred in MPI_Init
+   323:*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+   325:[dell:2147268] Local abort before MPI_INIT completed completed successfully, but am not able to aggregate error messages, and not able to guarantee that all other processes were killed!
+   326:[dell:2147265] OPAL ERROR: Unreachable in file pmix3x_client.c at line 111
+   329:but OMPI was not built with SLURM's PMI support and therefore cannot
+   343:*** An error occurred in MPI_Init
+   345:*** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+
+ 점검:  bash /home/dell/mlperf-8b.sh doctor
+dell@dell:~$
