@@ -1,56 +1,84 @@
-cd /data/lsh/inference_results_v6.0/closed/NVIDIA
-echo "=== 패치 상태 ==="
-grep -n 'MLPERF_GPU_LIST' scaleout/run_scaleout.sh
-grep -c "locals().get('gpu_ids'" code/llmlib/launch_server.py
-grep -c 'versioning.parse(C.VERSION' code/common/mlcommons/loadgen.py
-grep -c 'mpi_mode=legacy' scaleout/run_scaleout.sh
-bash -n scaleout/run_scaleout.sh && echo "run_scaleout 문법 OK"
+dell@dell:/data/lsh/mlperf-runs$ cat inference-0903-1501.log
+salloc: Granted job allocation 130
+Using SLURM_JOBID from environment: 130
+Fetched nodelist from job 130: dell
+Calculated harness system: B300-SXM-270GBx4
+Using SLURM allocation nodelist: dell
+============================================
+MLPerf Scaleout - all
+============================================
+Atomic system: B300-SXM-270GBx1
+Harness system: B300-SXM-270GBx4
+GPUs per DP: 1
+GPUs per node: 4
+DP multiplicity: 4
+Allocated nodes: 1
+Total GPUs: 4
+Log directory: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-130_2026.09.03-15.01.44
+Harness target: run_harness
+Server spawn time: 180s
+Dry run: false
+Deployment: Intra-node (4 DP/node, 1 tasks/DP)
+============================================
+Launching DP rank 0 on dell (GPUs: 0, URL: dell:30000, IPC: tcp://127.0.0.1:10012)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-130_2026.09.03-15.01.44/slurm_logs/run_llm_server_dell_gpus0.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-130_2026.09.03-15.01.44/slurm_logs/run_llm_server_dell_gpus0.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10012,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint --test_run --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-echo "=== 실제 오류 내용 ==="
-D=$(ls -1dt build/logs/scaleout_* | head -1); echo "$D"
-for f in "$D"/slurm_logs/*.stderr; do
-  echo "--- $f"
-  tail -30 "$f"
-done
+srun: error: dell: task 0: Exited with exit code 2
 
-stderr 내용이 핵심입니다. exit code 2는 make 실패라는 사실만 말해주고, 원인은 저 파일에만 있습니다.
 
-MLPERF_GPU_LIST가 나오면
+dell@dell:~$ bash mlperf-inference-b300.sh doctor
+MLPerf Inference 환경 진단   dell  2026-09-03 15:03:46
 
-며칠 전 제가 넣었다가 실패해서 원복했던 패치입니다. 405B가 4장에서 성공했던 시점에는 없었습니다. 원복이 덜 됐거나 중복 적용된 상태입니다.
+[하드웨어]
+   OK   GPU 인식 7장 / PCIe 열거 7개
+   --   NVLink fabric 이상 (0/7)
+   OK   드라이버 610.57.04 / FabricManager failed
+   GPU별MiB [0 0 0 0 0 0 0 ]
 
-백업이 있으면 그게 가장 확실합니다.
+[작업 스케줄러 / 컨테이너]
+   OK   SLURM 등록 GPU=7장  노드상태=alloc  대기작업=1
+   OK   pyxis(컨테이너 플러그인) 정상
+   OK   enroot 4.2.1   사용가능 MPI: MPI plugin types are...    none    pmi2    cray_shasta     pmix specific pmix plugin versions available: pmix_v5
+   OK   컨테이너 이미지 mlperf-inference-dell-x86_64-release.sqsh (26G)
 
-bash
-ls -la scaleout/run_scaleout.sh.orig /tmp/rs.bak /tmp/run_scaleout.sh.bak 2>/dev/null
+[소스코드 버그 수정 적용 여부]
+   OK   patch1 벤치마크목록 v6.0 고정
+   OK   patch2 실행방식 legacy
+   OK   patch3 gpu_ids 오류 해소
+   OK   실행 스크립트 문법 정상
 
-.orig가 있으면 그걸로 되돌리고 mpi_mode 패치만 다시 적용하세요.
+[모델 / 데이터]
+   llama2-70b:     전처리OK  데이터 3개  채점준비 3/3
+   llama3.1-405b:  전처리OK  데이터 2개  채점준비 3/3
+   ※ 채점준비가 3/3 이 아니면 정확도 검증이 마지막에 실패합니다
+   디스크 여유 1145G
 
-bash
-cd /data/lsh/inference_results_v6.0/closed/NVIDIA
-cp scaleout/run_scaleout.sh /tmp/rs-broken-$(date +%H%M).sh
-cp scaleout/run_scaleout.sh.orig scaleout/run_scaleout.sh
-sed -i 's|run_args="\$run_args --mpi_mode=leader"|run_args="$run_args --mpi_mode=legacy"|g' scaleout/run_scaleout.sh
-bash -n scaleout/run_scaleout.sh && echo "문법 OK"
-grep -n 'MLPERF_GPU_LIST\|mpi_mode' scaleout/run_scaleout.sh
+[준비된 GPU 개수별 설정]
+   B300-SXM-270GBx1 B300-SXM-270GBx2 B300-SXM-270GBx4 B300-SXM-270GBx7 B300-SXM-270GBx8
+ 상세로그: /data/lsh/mlperf-runs/inference-0903-1503.log
+dell@dell:~$
 
-MLPERF_GPU_LIST가 사라지고 mpi_mode=legacy만 남아야 합니다.
 
-백업이 없으면
-
-repo에서 원본만 다시 받아 mpi_mode만 패치하는 방법이 있습니다.
-
-bash
-cd /data/lsh/inference_results_v6.0
-git checkout -- closed/NVIDIA/scaleout/run_scaleout.sh 2>/dev/null \
-  || curl -sL -o /tmp/rs-fresh.sh \
-     https://raw.githubusercontent.com/mlcommons/inference_results_v6.0/main/closed/NVIDIA/scaleout/run_scaleout.sh
-[ -s /tmp/rs-fresh.sh ] && cp /tmp/rs-fresh.sh closed/NVIDIA/scaleout/run_scaleout.sh
-cd closed/NVIDIA
-sed -i 's|run_args="\$run_args --mpi_mode=leader"|run_args="$run_args --mpi_mode=legacy"|g' scaleout/run_scaleout.sh
-bash -n scaleout/run_scaleout.sh && grep -n 'mpi_mode' scaleout/run_scaleout.sh
-그다음
-bash
-bash ~/mlperf-inference-b300.sh doctor
-bash ~/mlperf-inference-b300.sh clean
-bash ~/mlperf-inference-b300.sh run llama2-70b offline 4
