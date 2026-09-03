@@ -1,84 +1,118 @@
-dell@dell:/data/lsh/mlperf-runs$ cat inference-0903-1501.log
-salloc: Granted job allocation 130
-Using SLURM_JOBID from environment: 130
-Fetched nodelist from job 130: dell
-Calculated harness system: B300-SXM-270GBx4
-Using SLURM allocation nodelist: dell
-============================================
-MLPerf Scaleout - all
-============================================
-Atomic system: B300-SXM-270GBx1
-Harness system: B300-SXM-270GBx4
-GPUs per DP: 1
-GPUs per node: 4
-DP multiplicity: 4
-Allocated nodes: 1
-Total GPUs: 4
-Log directory: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-130_2026.09.03-15.01.44
-Harness target: run_harness
-Server spawn time: 180s
-Dry run: false
-Deployment: Intra-node (4 DP/node, 1 tasks/DP)
-============================================
-Launching DP rank 0 on dell (GPUs: 0, URL: dell:30000, IPC: tcp://127.0.0.1:10012)...
-Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
-================================================
-Executing srun command:
-================================================
-srun \
-    --overlap \
-    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-130_2026.09.03-15.01.44/slurm_logs/run_llm_server_dell_gpus0.stdout \
-    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-130_2026.09.03-15.01.44/slurm_logs/run_llm_server_dell_gpus0.stderr \
-    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10012,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
-    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
-    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
-    --container-workdir=/work \
-    --container-remap-root \
-    --nodes=1 \
-    --nodelist=dell \
-    --ntasks-per-node=1 \
-    --mpi=pmix \
-    --overlap \
-    --cpu-bind=none \
-    --mpi=pmi2 \
-    make \
-    run_llm_server \
-    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint --test_run --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000 \
-    SYSTEM_NAME=B300-SXM-270GBx1
+dell@dell:/data/lsh/mlperf-runs$ systemctl status nvidia-fabricmanager.service
+× nvidia-fabricmanager.service - NVIDIA fabric manager service
+     Loaded: loaded (/usr/lib/systemd/system/nvidia-fabricmanager.service; enabled; preset: enabled)
+     Active: failed (Result: exit-code) since Thu 2026-09-03 10:52:21 KST; 4h 12min ago
+        CPU: 388ms
 
-srun: error: dell: task 0: Exited with exit code 2
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6027]: Skipping device mlx5_4 (BDF 0000:95:00.2) as port 1 is not NVLink subnet management capable
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6027]: Skipping device mlx5_5 (BDF 0000:95:00.3) as port 1 is not NVLink subnet management capable
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6766]: Checking mlx5_2...
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6766]: Using device mlx5_2, port 0x7425540300353de9
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6766]: Detected NVL5+ system
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6766]: Kernel module "ib_umad" has not been loaded, fabric manager cannot be started
+Sep 03 10:52:21 dell nvidia-fabricmanager-start.sh[6766]: Please run "modprobe ib_umad" before starting fabric manager
+Sep 03 10:52:21 dell systemd[1]: nvidia-fabricmanager.service: Control process exited, code=exited, status=1/FAILURE
+Sep 03 10:52:21 dell systemd[1]: nvidia-fabricmanager.service: Failed with result 'exit-code'.
+Sep 03 10:52:21 dell systemd[1]: Failed to start nvidia-fabricmanager.service - NVIDIA fabric manager service.
+dell@dell:/data/lsh/mlperf-runs$ systemctl start  nvidia-fabricmanager.service
+==== AUTHENTICATING FOR org.freedesktop.systemd1.manage-units ====
+Authentication is required to start 'nvidia-fabricmanager.service'.
+Authenticating as: dell
+Password:
+==== AUTHENTICATION COMPLETE ====
+Job for nvidia-fabricmanager.service failed because the control process exited with error code.
+See "systemctl status nvidia-fabricmanager.service" and "journalctl -xeu nvidia-fabricmanager.service" for details.
+dell@dell:/data/lsh/mlperf-runs$ systemctl start  nvidia-fabricmanager.service ^C
+dell@dell:/data/lsh/mlperf-runs$ journalctl -xeu nvidia-fabricmanager.service
+░░ An ExecStart= process belonging to unit nvidia-fabricmanager.service has exited.
+░░
+░░ The process' exit code is 'exited' and its exit status is 1.
+Sep 03 10:52:21 dell systemd[1]: nvidia-fabricmanager.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░
+░░ The unit nvidia-fabricmanager.service has entered the 'failed' state with result 'exit-code'.
+Sep 03 10:52:21 dell systemd[1]: Failed to start nvidia-fabricmanager.service - NVIDIA fabric manager service.
+░░ Subject: A start job for unit nvidia-fabricmanager.service has failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░
+░░ A start job for unit nvidia-fabricmanager.service has finished with a failure.
+░░
+░░ The job identifier is 147 and the job result is failed.
+Sep 03 15:05:14 dell systemd[1]: Starting nvidia-fabricmanager.service - NVIDIA fabric manager service...
+░░ Subject: A start job for unit nvidia-fabricmanager.service has begun execution
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░
+░░ A start job for unit nvidia-fabricmanager.service has begun execution.
+░░
+░░ The job identifier is 177036.
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: Found CX Bridge devices:  mlx5_2(0000:95:00.0) mlx5_3(0000:95:00.1) mlx5_4(0000:95:00.2) mlx5_5(0000:95:00.3)
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: Checking whether any of the CX Bridge devices are usable for NVLink subnet management...
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: Device mlx5_2 (BDF 0000:95:00.0) Port 1 is 5: LinkUp.
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: CX Bridge device mlx5_2(0000:95:00.0) is usable for NVLink subnet management.
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: Device mlx5_3 (BDF 0000:95:00.1) Port 1 is 5: LinkUp.
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: CX Bridge device mlx5_3(0000:95:00.1) is usable for NVLink subnet management.
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: Skipping device mlx5_4 (BDF 0000:95:00.2) as port 1 is not NVLink subnet management capable
+Sep 03 15:05:14 dell nvidia-fabricmanager-start.sh[92266]: Skipping device mlx5_5 (BDF 0000:95:00.3) as port 1 is not NVLink subnet management capable
+Sep 03 15:05:15 dell nvidia-fabricmanager-start.sh[92412]: Checking mlx5_2...
+Sep 03 15:05:15 dell nvidia-fabricmanager-start.sh[92412]: Using device mlx5_2, port 0x7425540300353de9
+Sep 03 15:05:15 dell nvidia-fabricmanager-start.sh[92412]: Detected NVL5+ system
+Sep 03 15:05:15 dell nvidia-fabricmanager-start.sh[92412]: Kernel module "ib_umad" has not been loaded, fabric manager cannot be started
+Sep 03 15:05:15 dell nvidia-fabricmanager-start.sh[92412]: Please run "modprobe ib_umad" before starting fabric manager
+Sep 03 15:05:15 dell systemd[1]: nvidia-fabricmanager.service: Control process exited, code=exited, status=1/FAILURE
+░░ Subject: Unit process exited
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░
+░░ An ExecStart= process belonging to unit nvidia-fabricmanager.service has exited.
+░░
+░░ The process' exit code is 'exited' and its exit status is 1.
+Sep 03 15:05:15 dell systemd[1]: nvidia-fabricmanager.service: Failed with result 'exit-code'.
+░░ Subject: Unit failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░
+░░ The unit nvidia-fabricmanager.service has entered the 'failed' state with result 'exit-code'.
+Sep 03 15:05:15 dell systemd[1]: Failed to start nvidia-fabricmanager.service - NVIDIA fabric manager service.
+░░ Subject: A start job for unit nvidia-fabricmanager.service has failed
+░░ Defined-By: systemd
+░░ Support: http://www.ubuntu.com/support
+░░
+░░ A start job for unit nvidia-fabricmanager.service has finished with a failure.
+░░
+░░ The job identifier is 177036 and the job result is failed.
 
+[3]+  Stopped                 journalctl -xeu nvidia-fabricmanager.service
+dell@dell:/data/lsh/mlperf-runs$ ^C
+dell@dell:/data/lsh/mlperf-runs$ nvidia-smi topo -m
+        GPU0    GPU1    GPU2    GPU3    GPU4    GPU5    GPU6    CPU Affinity    NUMA Affinity   GPU NUMA ID
+GPU0     X      NV18    NV18    NV18    NV18    NV18    NV18    0,2,4,6,8,10    0               N/A
+GPU1    NV18     X      NV18    NV18    NV18    NV18    NV18    0,2,4,6,8,10    0               N/A
+GPU2    NV18    NV18     X      NV18    NV18    NV18    NV18    0,2,4,6,8,10    0               N/A
+GPU3    NV18    NV18    NV18     X      NV18    NV18    NV18    1,3,5,7,9,11    1               N/A
+GPU4    NV18    NV18    NV18    NV18     X      NV18    NV18    1,3,5,7,9,11    1               N/A
+GPU5    NV18    NV18    NV18    NV18    NV18     X      NV18    1,3,5,7,9,11    1               N/A
+GPU6    NV18    NV18    NV18    NV18    NV18    NV18     X      1,3,5,7,9,11    1               N/A
 
-dell@dell:~$ bash mlperf-inference-b300.sh doctor
-MLPerf Inference 환경 진단   dell  2026-09-03 15:03:46
+Legend:
 
-[하드웨어]
-   OK   GPU 인식 7장 / PCIe 열거 7개
-   --   NVLink fabric 이상 (0/7)
-   OK   드라이버 610.57.04 / FabricManager failed
-   GPU별MiB [0 0 0 0 0 0 0 ]
-
-[작업 스케줄러 / 컨테이너]
-   OK   SLURM 등록 GPU=7장  노드상태=alloc  대기작업=1
-   OK   pyxis(컨테이너 플러그인) 정상
-   OK   enroot 4.2.1   사용가능 MPI: MPI plugin types are...    none    pmi2    cray_shasta     pmix specific pmix plugin versions available: pmix_v5
-   OK   컨테이너 이미지 mlperf-inference-dell-x86_64-release.sqsh (26G)
-
-[소스코드 버그 수정 적용 여부]
-   OK   patch1 벤치마크목록 v6.0 고정
-   OK   patch2 실행방식 legacy
-   OK   patch3 gpu_ids 오류 해소
-   OK   실행 스크립트 문법 정상
-
-[모델 / 데이터]
-   llama2-70b:     전처리OK  데이터 3개  채점준비 3/3
-   llama3.1-405b:  전처리OK  데이터 2개  채점준비 3/3
-   ※ 채점준비가 3/3 이 아니면 정확도 검증이 마지막에 실패합니다
-   디스크 여유 1145G
-
-[준비된 GPU 개수별 설정]
-   B300-SXM-270GBx1 B300-SXM-270GBx2 B300-SXM-270GBx4 B300-SXM-270GBx7 B300-SXM-270GBx8
- 상세로그: /data/lsh/mlperf-runs/inference-0903-1503.log
-dell@dell:~$
-
-
+  X    = Self
+  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)
+  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node
+  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)
+  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)
+  PIX  = Connection traversing at most a single PCIe bridge
+  NV#  = Connection traversing a bonded set of # NVLinks
+dell@dell:/data/lsh/mlperf-runs$ nvidia-smi --format=csv --query-gpu=index,fabric.status,fabric.status
+index, fabric.status, fabric.status
+0, N/A, N/A
+1, N/A, N/A
+2, N/A, N/A
+3, N/A, N/A
+4, N/A, N/A
+5, N/A, N/A
+6, N/A, N/A
+dell@dell:/data/lsh/mlperf-runs$
