@@ -16,6 +16,7 @@
 #  사용법
 # -----------------------------------------------------------------------------
 #  [1단계] 준비
+#    bash mlperf-training-b300.sh paths     지금 쓰는 경로 확인
 #    bash mlperf-training-b300.sh check     자산/설정/환경 점검
 #    bash mlperf-training-b300.sh doctor    실행환경 상세 진단 + 최근 실패 원인
 #    bash mlperf-training-b300.sh build     컨테이너 이미지 만들기
@@ -88,12 +89,66 @@
 set -u    # 정의하지 않은 변수를 쓰면 즉시 중단
 
 # ============================== 사용자 설정 ==================================
-BASE="${BASE:-/data/lsh}"
+# 경로를 지정하는 방법은 세 가지입니다. 아래로 갈수록 우선합니다.
+#
+#   1) 이 파일의 기본값
+#   2) 설정파일  ~/.mlperf-b300-train.conf   (한 번 적어두면 계속 적용)
+#   3) 명령줄 옵션  --base /경로 등           (이번 실행에만 적용)
+#
+#  설정파일 예시 (~/.mlperf-b300-train.conf)
+#     BASE=/data/lsh
+#     DATADIR=/mnt/nvme/mlperf_training_data
+#     CONT=/data/lsh/llama31_8b.sqsh
+#
+#  명령줄 옵션 (명령어보다 앞에 씁니다)
+#     --base    <경로>   작업 최상위 폴더. 아래 경로들의 기준이 됩니다.
+#     --data    <경로>   학습 데이터 폴더 (약 90GB 필요)
+#     --repo    <경로>   MLPerf Training 소스코드 폴더
+#     --cont    <파일>   컨테이너 이미지(.sqsh) 절대경로
+#     --logdir  <경로>   학습 로그를 남길 폴더
+#
+#  예)  bash mlperf-training-b300.sh --data /mnt/nvme/train_data perf 200
+#       현재 적용된 경로 확인:  bash mlperf-training-b300.sh paths
+# -----------------------------------------------------------------------------
+
+# 1) 기본값
+BASE_DEFAULT=/data/lsh
+
+# 2) 설정파일 읽기 (있으면)
+CONF="${MLPERF_TRAIN_CONF:-$HOME/.mlperf-b300-train.conf}"
+[ -f "$CONF" ] && . "$CONF"
+
+# 환경변수로 준 값도 받습니다 (이전 방식 호환)
+BASE="${BASE:-$BASE_DEFAULT}"
+REPO_IN="${REPO:-}"
+DATADIR_IN="${DATADIR:-}"
+LOGDIR_IN="${LOGDIR:-}"
+CONT_IN="${CONT:-}"
+
+# 3) 명령줄 옵션 파싱 (명령어보다 앞에 온 것만)
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --base)    BASE="${2:?--base 뒤에 경로를 적어주세요}";      shift 2 ;;
+    --data)    DATADIR_IN="${2:?--data 뒤에 경로를 적어주세요}"; shift 2 ;;
+    --repo)    REPO_IN="${2:?--repo 뒤에 경로를 적어주세요}";    shift 2 ;;
+    --cont)    CONT_IN="${2:?--cont 뒤에 파일 경로를 적어주세요}"; shift 2 ;;
+    --logdir)  LOGDIR_IN="${2:?--logdir 뒤에 경로를 적어주세요}"; shift 2 ;;
+    --conf)    CONF="${2:?--conf 뒤에 파일 경로를 적어주세요}"
+               [ -f "$CONF" ] && . "$CONF" || { echo "설정파일 없음: $CONF"; exit 1; }
+               shift 2 ;;
+    --help|-h) sed -n '3,60p' "$0"; exit 0 ;;
+    --*)       echo "알 수 없는 옵션: $1"
+               echo "쓸 수 있는 옵션: --base --data --repo --cont --logdir --conf"; exit 1 ;;
+    *)         break ;;      # 옵션이 아니면 명령어 시작
+  esac
+done
+
+# 최종 경로 확정. 따로 지정하지 않은 것은 BASE 기준으로 만듭니다.
 # MLPerf Training 소스코드 (Dell 제출본의 NeMo 구현)
-REPO="${REPO:-$BASE/training_results_v6.0/Dell/benchmarks/llama31_8b/implementations/nemo}"
-DATADIR="${DATADIR:-$BASE/mlperf_training_data}"   # 학습 데이터 (약 90GB)
-LOGDIR="${LOGDIR:-$BASE/mlperf-8b-logs}"           # 학습 로그
-CONT="${CONT:-$BASE/llama31_8b.sqsh}"              # 컨테이너 이미지 (절대경로!)
+REPO="${REPO_IN:-$BASE/training_results_v6.0/Dell/benchmarks/llama31_8b/implementations/nemo}"
+DATADIR="${DATADIR_IN:-$BASE/mlperf_training_data}"   # 학습 데이터 (약 90GB)
+LOGDIR="${LOGDIR_IN:-$BASE/mlperf-8b-logs}"           # 학습 로그
+CONT="${CONT_IN:-$BASE/llama31_8b.sqsh}"              # 컨테이너 이미지 (절대경로!)
 DOCKER_TAG="${DOCKER_TAG:-mlperf-nvidia:llama31_8b-pyt}"   # docker build 태그
 
 # 설정파일 두 개. 기본과 FP8 어텐션 변형을 A/B 비교할 수 있습니다.
@@ -446,6 +501,47 @@ launch(){
 #                              명령어 처리
 # =============================================================================
 case "$MODE" in
+
+# -------------------------------------------------------------------- paths --
+# 지금 어떤 경로를 쓰고 있는지 보여줍니다.
+paths)
+  say "적용된 경로"
+  say ""
+  say "[설정 출처]"
+  [ -f "$CONF" ] && ok "설정파일 $CONF" || say "   설정파일 없음 ($CONF)  — 기본값 사용"
+  say ""
+  say "[경로]"
+  tchk(){ # $1=이름 $2=경로 $3=d(디렉토리)|f(파일)
+    if [ "$3" = d ] && [ -d "$2" ]; then
+      printf "   %-10s %s   (있음, 여유 %s)\n" "$1" "$2" \
+             "$(df -BG --output=avail "$2" 2>/dev/null | tail -1 | tr -d ' ')"
+    elif [ "$3" = f ] && [ -s "$2" ]; then
+      printf "   %-10s %s   (있음, %s)\n" "$1" "$2" "$(du -h "$2" 2>/dev/null | cut -f1)"
+    else
+      printf "   %-10s %s   (없음)\n" "$1" "${2:-미지정}"
+    fi
+  }
+  tchk "BASE"    "$BASE"    d
+  tchk "DATADIR" "$DATADIR" d
+  tchk "REPO"    "$REPO"    d
+  tchk "LOGDIR"  "$LOGDIR"  d
+  tchk "CONT"    "$CONT"    f
+  say ""
+  say "[학습 데이터]"
+  if [ -d "$DATADIR/8b" ]; then
+    printf "   %-10s %s\n" "8b/" "$(du -sh "$DATADIR/8b" 2>/dev/null | cut -f1)"
+  else
+    printf "   %-10s (없음 — bash %s prep)\n" "8b/" "$0"
+  fi
+  say ""
+  say "[바꾸는 방법]"
+  say "   이번 실행만:  bash $0 --data /새/경로 <명령어> ..."
+  say "   계속 적용  :  아래 내용을 $CONF 에 저장"
+  say "                   BASE=$BASE"
+  say "                   DATADIR=$DATADIR"
+  say "                   REPO=$REPO"
+  say "                   CONT=$CONT"
+  ;;
 
 # -------------------------------------------------------------------- clean --
 clean) hard_clean; squeue -u "$(whoami)" 2>/dev/null ;;
