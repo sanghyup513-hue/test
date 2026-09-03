@@ -1,57 +1,423 @@
-cd /data/lsh/inference_results_v6.0/closed/NVIDIA
-cp code/llmlib/launch_server.py /tmp/ls-before-p4-$(date +%H%M).bak
+ll@dell:/data/lsh/mlperf-runs$ cat inference-0903-1547.log
+salloc: Granted job allocation 134
+Using SLURM_JOBID from environment: 134
+Fetched nodelist from job 134: dell
+Calculated harness system: B300-SXM-270GBx4
+Using SLURM allocation nodelist: dell
+============================================
+MLPerf Scaleout - all
+============================================
+Atomic system: B300-SXM-270GBx1
+Harness system: B300-SXM-270GBx4
+GPUs per DP: 1
+GPUs per node: 4
+DP multiplicity: 4
+Allocated nodes: 1
+Total GPUs: 4
+Log directory: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19
+Harness target: run_harness
+Server spawn time: 180s
+Dry run: false
+Deployment: Intra-node (4 DP/node, 1 tasks/DP)
+============================================
+Launching DP rank 0 on dell (GPUs: 0, URL: dell:30000, IPC: tcp://127.0.0.1:10012)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus0.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus0.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10012,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-python3 - code/llmlib/launch_server.py <<'PYEOF'
-import sys
-p = sys.argv[1]
-s = open(p).read()
+Launching DP rank 1 on dell (GPUs: 1, URL: dell:30001, IPC: tcp://127.0.0.1:10013)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus1.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus1.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10013,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30001 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-if '[PATCH4]' in s:
-    print("patch4 이미 적용됨"); sys.exit(0)
+Launching DP rank 2 on dell (GPUs: 2, URL: dell:30002, IPC: tcp://127.0.0.1:10014)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus2.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus2.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10014,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30002 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-old = """                cmd = ['trtllm-serve']
-                import os as _os
-                _ext = _os.environ.get('MLPERF_GPU_LIST')
-                if _ext:
-                    env['CUDA_VISIBLE_DEVICES'] = _ext
-                else:
-                    start_gpu = index * gpus_per_server
-                    gpu_ids = list(range(start_gpu, start_gpu + gpus_per_server))
-                    env['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, gpu_ids))"""
+dell@dell:/data/lsh/mlperf-runs$
+dell@dell:/data/lsh/mlperf-runs$
+dell@dell:/data/lsh/mlperf-runs$ cat inference-0903-1547.log
+salloc: Granted job allocation 134
+Using SLURM_JOBID from environment: 134
+Fetched nodelist from job 134: dell
+Calculated harness system: B300-SXM-270GBx4
+Using SLURM allocation nodelist: dell
+============================================
+MLPerf Scaleout - all
+============================================
+Atomic system: B300-SXM-270GBx1
+Harness system: B300-SXM-270GBx4
+GPUs per DP: 1
+GPUs per node: 4
+DP multiplicity: 4
+Allocated nodes: 1
+Total GPUs: 4
+Log directory: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19
+Harness target: run_harness
+Server spawn time: 180s
+Dry run: false
+Deployment: Intra-node (4 DP/node, 1 tasks/DP)
+============================================
+Launching DP rank 0 on dell (GPUs: 0, URL: dell:30000, IPC: tcp://127.0.0.1:10012)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus0.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus0.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10012,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-new = """                cmd = ['trtllm-serve']
-                # [PATCH4] index 는 srun 스텝마다 항상 0 이라, 원본 계산식으로는
-                # 모든 서버가 물리 GPU 0 을 가리켜 2번째부터 메모리 부족으로 죽습니다.
-                # run_scaleout.sh 가 랭크별로 다르게 넣어주는 NVIDIA_VISIBLE_DEVICES
-                # 를 우선 사용합니다. 컨테이너가 이미 내 몫만 보고 있으면(격리 성공)
-                # 원본 계산이 맞으므로 그대로 둡니다.
-                _nvd = os.getenv('NVIDIA_VISIBLE_DEVICES', '') or ''
-                _mine = [t for t in _nvd.replace(' ', '').split(',') if t.isdigit()]
-                try:
-                    _vis = len(subprocess.check_output(
-                        ['nvidia-smi', '--query-gpu=index', '--format=csv,noheader'],
-                        text=True).strip().splitlines())
-                except Exception:
-                    _vis = 0
-                if _mine and _vis > gpus_per_server:
-                    gpu_ids = _mine[:gpus_per_server]
-                    logging.info(f"[PATCH4] container sees {_vis} GPUs; "
-                                 f"using NVIDIA_VISIBLE_DEVICES -> {gpu_ids}")
-                else:
-                    start_gpu = index * gpus_per_server
-                    gpu_ids = list(range(start_gpu, start_gpu + gpus_per_server))
-                env['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, gpu_ids))"""
+Launching DP rank 1 on dell (GPUs: 1, URL: dell:30001, IPC: tcp://127.0.0.1:10013)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus1.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus1.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10013,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30001 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-if old not in s:
-    print("패턴 불일치 — 실제 코드를 확인하세요"); sys.exit(1)
-open(p,'w').write(s.replace(old,new))
-print("patch4 적용 완료 (MLPERF_GPU_LIST 잔재 제거 포함)")
-PYEOF
+Launching DP rank 2 on dell (GPUs: 2, URL: dell:30002, IPC: tcp://127.0.0.1:10014)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus2.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-134_2026.09.03-15.47.19/slurm_logs/run_llm_server_dell_gpus2.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10014,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30002 \
+    SYSTEM_NAME=B300-SXM-270GBx1
 
-python3 -m py_compile code/llmlib/launch_server.py && echo "문법 OK"
-grep -n 'PATCH4\|MLPERF_GPU_LIST' code/llmlib/launch_server.py
+dell@dell:/data/lsh/mlperf-runs$
+dell@dell:/data/lsh/mlperf-runs$ nvidia-smi
+Thu Sep  3 15:54:16 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA B300 SXM6 AC            On  |   00000000:1A:00.0 Off |                    0 |
+| N/A   31C    P0            233W / 1100W |  273920MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA B300 SXM6 AC            On  |   00000000:69:00.0 Off |                    0 |
+| N/A   43C    P0            186W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA B300 SXM6 AC            On  |   00000000:DB:00.0 Off |                    0 |
+| N/A   37C    P0            183W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA B300 SXM6 AC            On  |   00000001:1A:00.0 Off |                    0 |
+| N/A   30C    P0            178W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   4  NVIDIA B300 SXM6 AC            On  |   00000001:69:00.0 Off |                    0 |
+| N/A   43C    P0            186W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   5  NVIDIA B300 SXM6 AC            On  |   00000001:B5:00.0 Off |                    0 |
+| N/A   30C    P0            183W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   6  NVIDIA B300 SXM6 AC            On  |   00000001:DB:00.0 Off |                    0 |
+| N/A   39C    P0            184W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A          123690      C   /usr/bin/python                         680MiB |
+|    0   N/A  N/A          123894      C   /usr/bin/python                       26243... |
+|    0   N/A  N/A          129737      C   /usr/bin/python                         680MiB |
+|    0   N/A  N/A          129950      C   /usr/bin/python                       10040MiB |
++-----------------------------------------------------------------------------------------+
+dell@dell:/data/lsh/mlperf-runs$ nvidia-smi
+Thu Sep  3 15:54:18 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA B300 SXM6 AC            On  |   00000000:1A:00.0 Off |                    0 |
+| N/A   31C    P0            236W / 1100W |  263159MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA B300 SXM6 AC            On  |   00000000:69:00.0 Off |                    0 |
+| N/A   43C    P0            186W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA B300 SXM6 AC            On  |   00000000:DB:00.0 Off |                    0 |
+| N/A   37C    P0            183W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA B300 SXM6 AC            On  |   00000001:1A:00.0 Off |                    0 |
+| N/A   30C    P0            179W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   4  NVIDIA B300 SXM6 AC            On  |   00000001:69:00.0 Off |                    0 |
+| N/A   43C    P0            186W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   5  NVIDIA B300 SXM6 AC            On  |   00000001:B5:00.0 Off |                    0 |
+| N/A   30C    P0            183W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   6  NVIDIA B300 SXM6 AC            On  |   00000001:DB:00.0 Off |                    0 |
+| N/A   39C    P0            184W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A          123690      C   /usr/bin/python                         680MiB |
+|    0   N/A  N/A          123894      C   /usr/bin/python                       26243... |
++-----------------------------------------------------------------------------------------+
+dell@dell:/data/lsh/mlperf-runs$ ps -ef | grep 129737
+dell      130206   71739  0 15:54 pts/0    00:00:00 grep --color=auto 129737
+dell@dell:/data/lsh/mlperf-runs$ ps -ef | grep 129950
+dell      130208   71739  0 15:54 pts/0    00:00:00 grep --color=auto 129950
+dell@dell:/data/lsh/mlperf-runs$ nvidia-smi
+Thu Sep  3 15:54:38 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 610.57.04              KMD Version: 610.57.04     CUDA UMD Version: 13.3     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA B300 SXM6 AC            On  |   00000000:1A:00.0 Off |                    0 |
+| N/A   31C    P0            233W / 1100W |  263159MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA B300 SXM6 AC            On  |   00000000:69:00.0 Off |                    0 |
+| N/A   43C    P0            185W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA B300 SXM6 AC            On  |   00000000:DB:00.0 Off |                    0 |
+| N/A   37C    P0            183W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA B300 SXM6 AC            On  |   00000001:1A:00.0 Off |                    0 |
+| N/A   30C    P0            179W / 1100W |       4MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   4  NVIDIA B300 SXM6 AC            On  |   00000001:69:00.0 Off |                    0 |
+| N/A   43C    P0            186W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   5  NVIDIA B300 SXM6 AC            On  |   00000001:B5:00.0 Off |                    0 |
+| N/A   30C    P0            183W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   6  NVIDIA B300 SXM6 AC            On  |   00000001:DB:00.0 Off |                    0 |
+| N/A   39C    P0            184W / 1100W |       0MiB / 275040MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A          123690      C   /usr/bin/python                         680MiB |
+|    0   N/A  N/A          123894      C   /usr/bin/python                       26243... |
++-----------------------------------------------------------------------------------------+
+dell@dell:/data/lsh/mlperf-runs$
+dell@dell:~$ bash mlperf-inference-b300.sh doctor
+MLPerf Inference 환경 진단   dell  2026-09-03 15:40:20
+
+[하드웨어]
+   OK   GPU 인식 7장 / PCIe 열거 7개
+   OK   NVLink fabric 정상 (7/7)
+   OK   드라이버 610.57.04 / FabricManager active
+   GPU별MiB [0 0 0 0 0 0 0 ]
+
+[작업 스케줄러 / 컨테이너]
+   OK   SLURM 등록 GPU=7장  노드상태=idle  대기작업=0
+   OK   pyxis(컨테이너 플러그인) 정상
+   OK   enroot 4.2.1   사용가능 MPI: MPI plugin types are...    none    pmi2    cray_shasta     pmix specific pmix plugin versions available: pmix_v5
+   OK   컨테이너 이미지 mlperf-inference-dell-x86_64-release.sqsh (26G)
+
+[소스코드 버그 수정 적용 여부]
+   OK   patch1 벤치마크목록 v6.0 고정
+   OK   patch2 실행방식 legacy
+   OK   patch3 gpu_ids 오류 해소
+   OK   patch4 서버별 GPU 배정 (다중 GPU 필수)
+   OK   patch5 서버별 로그파일 분리
+   OK   실행 스크립트 문법 정상
+
+[모델 / 데이터]
+   llama2-70b:     전처리OK  데이터 3개  채점준비 3/3
+   llama3.1-405b:  전처리OK  데이터 2개  채점준비 3/3
+   ※ 채점준비가 3/3 이 아니면 정확도 검증이 마지막에 실패합니다
+   디스크 여유 1145G
+
+[준비된 GPU 개수별 설정]
+   B300-SXM-270GBx1 B300-SXM-270GBx2 B300-SXM-270GBx4 B300-SXM-270GBx7 B300-SXM-270GBx8
+ 상세로그: /data/lsh/mlperf-runs/inference-0903-1540.log
+dell@dell:~$
+dell@dell:~$ bash mlperf-inference-b300.sh run llama2-70b accuracy 4
+llama2-70b Offline (--test_mode=AccuracyOnly)  |  GPU 4장
+   OK   채점용 원본 데이터 (87M)
+   OK   채점용 config.json
+   OK   채점용 tokenizer.json
+   합격 기준: ROUGE1 43.99 / ROUGE2 21.81 / ROUGEL 28.33 이상, TOKENS_PER_SAMPLE 265.0~323.9
+   OK   GPU 전부 비움 [0 0 0 0 0 0 0 ]   대기작업 0개
+
+Offline 실행  |  llama2-70b  GPU 4장 (TP1 x DP4)
+60초마다 GPU 메모리를 표시합니다. 앞 4장만 차면 정상입니다.
+   15:42  GPU별MiB [39243 4 4 4 0 0 0 ]
+^[[A
+^[[A   15:43  GPU별MiB [64377 4 4 4 0 0 0 ]
+   15:44  GPU별MiB [60097 4 4 4 0 0 0 ]
 
 
+   15:45  GPU별MiB [273920 4 4 4 0 0 0 ]
+   15:46  GPU별MiB [263159 4 4 4 0 0 0 ]
+^B^Z
+[5]+  Stopped                 bash mlperf-inference-b300.sh run llama2-70b accuracy 4
+dell@dell:~$ ^C
+dell@dell:~$
+dell@dell:~$
+dell@dell:~$ bash mlperf-inference-b300.sh run llama2-70b clean
+   --   시나리오는 offline / server / accuracy 중 하나입니다
+dell@dell:~$ bash mlperf-inference-b300.sh clean
+   OK   GPU 전부 비움 [0 0 0 0 0 0 0 ]   대기작업 0개
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+dell@dell:~$ bash mlperf-inference-b300.sh run llama2-70b offline 4
+llama2-70b Offline  |  GPU 4장
+   OK   GPU 전부 비움 [0 0 0 0 0 0 0 ]   대기작업 0개
 
-echo 'CONT=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh' >> ~/.mlperf-b300.conf
-bash ~/mlperf-inference-b300.sh paths
+Offline 실행  |  llama2-70b  GPU 4장 (TP1 x DP4)
+60초마다 GPU 메모리를 표시합니다. 앞 4장만 차면 정상입니다.
+   15:48  GPU별MiB [39243 4 4 4 0 0 0 ]
+   15:49  GPU별MiB [64237 4 4 4 0 0 0 ]
+   15:50  GPU별MiB [60193 4 4 4 0 0 0 ]
+   15:51  GPU별MiB [273920 4 4 4 0 0 0 ]
+   15:52  GPU별MiB [263159 4 4 4 0 0 0 ]
+   15:53  GPU별MiB [263159 4 4 4 0 0 0 ]
+   15:54  GPU별MiB [263159 4 4 4 0 0 0 ]
+
