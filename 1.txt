@@ -1,4 +1,6 @@
-cd /data/lsh/inference_results_v6.0/closed/NVIDIA
+dell@dell:/data/lsh/mlperf-runs$
+dell@dell:/data/lsh/mlperf-runs$
+dell@dell:/data/lsh/mlperf-runs$ cd /data/lsh/inference_results_v6.0/closed/NVIDIA
 D=$(ls -1dt build/logs/scaleout_* | head -1); echo "$D"
 ls -la "$D"/slurm_logs/
 echo "===== gpus1 stderr ====="
@@ -12,3 +14,67 @@ tail -30 "$D"/trtllm_serve_dp1_rank0.log 2>/dev/null
 echo "===== 프로세스 ====="
 nvidia-smi --query-compute-apps=pid,used_memory --format=csv
 squeue -u dell -s 2>/dev/null | head
+build/logs/scaleout_B300-SXM-270GBx4_slurm-131_2026.09.03-15.10.40
+total 24
+drwxr-xr-x 2 dell dell 4096 Sep  3 15:19 .
+drwxrwxr-x 4 dell dell 4096 Sep  3 15:11 ..
+-rw-r--r-- 1 dell dell 2929 Sep  3 15:11 run_llm_server_dell_gpus0.stderr
+-rw-r--r-- 1 dell dell    0 Sep  3 15:10 run_llm_server_dell_gpus0.stdout
+-rw-r--r-- 1 dell dell 2929 Sep  3 15:14 run_llm_server_dell_gpus1.stderr
+-rw-r--r-- 1 dell dell    0 Sep  3 15:13 run_llm_server_dell_gpus1.stdout
+-rw-r--r-- 1 dell dell 2929 Sep  3 15:17 run_llm_server_dell_gpus2.stderr
+-rw-r--r-- 1 dell dell    0 Sep  3 15:16 run_llm_server_dell_gpus2.stdout
+-rw-r--r-- 1 dell dell 2929 Sep  3 15:20 run_llm_server_dell_gpus3.stderr
+-rw-r--r-- 1 dell dell    0 Sep  3 15:19 run_llm_server_dell_gpus3.stdout
+===== gpus1 stderr =====
+[2026-09-03 15:14:12,966 INFO] [ builder.py:303 HFQuantizerOp.run ] Quantized checkpoint already exists at: /work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4. Set --force_calibration to overwrite.
+[2026-09-03 15:14:12,969 launch_server.py:419 INFO RANK=0] Generated extra config YAML at /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-131_2026.09.03-15.10.40/trtllm_serve_extra_conf.yaml
+[2026-09-03 15:14:12,969 launch_server.py:425 INFO RANK=0] Extra Config YAML Contents (generated):
+backend: pytorch
+tensor_parallel_size: 1
+pipeline_parallel_size: 1
+max_batch_size: 3072
+max_num_tokens: 4608
+max_seq_len: 2048
+print_iter_log: false
+enable_iter_perf_stats: false
+return_perf_metrics: false
+enable_layerwise_nvtx_marker: false
+stream_interval: 50
+enable_chunked_prefill: true
+scheduler_config:
+  capacity_scheduler_policy: MAX_UTILIZATION
+  context_chunking_policy: FIRST_COME_FIRST_SERVED
+kv_cache_config:
+  dtype: fp8
+  free_gpu_memory_fraction: 0.95
+  enable_block_reuse: false
+num_postprocess_workers: 4
+torch_compile_config:
+  enable_fullgraph: true
+  enable_inductor: false
+  enable_piecewise_cuda_graph: true
+  enable_userbuffers: true
+  capture_num_tokens: [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 768, 1024, 1280, 1536, 1792, 2048, 2304, 2560, 2816, 3072, 3328, 3584, 3840, 4096, 4352, 4608]
+moe_config:
+  backend: CUTLASS
+cache_transceiver_config:
+  backend: DEFAULT
+sampler_type: TRTLLMSampler
+
+[2026-09-03 15:14:12,970 launch_server.py:481 INFO RANK=0] Removed 50 SLURM environment variables for running pseudo-MPI programs within single task srun
+[2026-09-03 15:14:12,971 launch_server.py:543 INFO RANK=0] Launched dell:30001
+[2026-09-03 15:14:12,971 launch_server.py:544 INFO RANK=0]   CMD: trtllm-serve /work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4 --host 0.0.0.0 --port 30001 --extra_llm_api_options /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-131_2026.09.03-15.10.40/trtllm_serve_extra_conf.yaml --num_postprocess_workers 4 --tp_size 1 --pp_size 1 --max_num_tokens 4608 --max_batch_size 3072 --max_seq_len 2048 --max_beam_width 1 --tokenizer /work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4 --backend pytorch
+[2026-09-03 15:14:12,971 launch_server.py:545 INFO RANK=0]   GPU devices: [0]
+[2026-09-03 15:14:12,971 launch_server.py:546 INFO RANK=0]   Log file: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-131_2026.09.03-15.10.40/trtllm_serve_0.log
+===== gpus1 stdout =====
+===== 서버 자체 로그 목록 =====
+===== dp1 서버 로그 =====
+===== 프로세스 =====
+pid, used_gpu_memory [MiB]
+96819, 680 MiB
+97030, 262436 MiB
+         STEPID     NAME PARTITION     USER      TIME NODELIST
+          131.0     make       gpu     dell     12:10 dell
+          131.4     make       gpu     dell      0:10 dell
+dell@dell:/data/lsh/inference_results_v6.0/closed/NVIDIA$
