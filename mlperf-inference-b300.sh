@@ -69,6 +69,15 @@
 #      만들어지는데, 로그 출력이 그 밖에 있어서 legacy 모드면 죽습니다.
 #      이걸 고친 덕에 GPU 여러 장 분산이 처음으로 성공했습니다.
 #                                                        -> patch 3
+#  (3-1) 그래도 GPU 를 여러 장 쓰면 서버 전부가 물리 GPU 0 을 가리켜, 첫 번째만
+#      살고 나머지는 메모리 부족으로 조용히 죽습니다. 서버를 srun 스텝마다
+#      하나씩 띄우는 구조라 코드가 쓰는 index 가 언제나 0 이기 때문입니다.
+#      랭크를 알아낼 방법을 여러 개 시도했고 결론은 포트 번호였습니다.
+#        NVIDIA_VISIBLE_DEVICES -> pyxis 가 컨테이너 생성 시 소비. 안에선 사라짐.
+#        MLPERF_GPU_LIST 주입   -> run_scaleout.sh 도 고쳐야 하고 실패.
+#        endpoint_port          -> 30000+rank 로 다르고 컨테이너 안에서도 살아있음.
+#      게다가 서버 로그 파일명도 index 로 만들어 여러 서버가 같은 파일을
+#      덮어쓰는 탓에 죽은 이유마저 사라졌습니다.      -> patch 4,5
 #  (4) 호스트와 컨테이너의 MPI 통신 규격 버전이 안 맞습니다(PMIx 5 vs 3).
 #      --mpi=pmi2 로 우회합니다. --mpi=none 은 아예 초기화가 실패합니다.
 #  (5) --exclusive 옵션을 빼면 CPU 를 2개만 받아서, 수백 GB 모델 읽기가
@@ -339,71 +348,99 @@ PYEOF
   fi
 
   # --- patch 4,5 : GPU 를 여러 장 쓸 때만 필요한 수정 ----------------------
-  # 증상: GPU 4장으로 llama2-70b 를 돌리면 GPU 0 에만 서버가 뜨고 나머진 죽음.
+  # 증상: GPU 4장으로 돌리면 GPU 0 에만 서버가 뜨고 나머지는 조용히 죽습니다.
   # 원인 두 가지가 겹칩니다.
   #  (4) legacy 모드는 CUDA_VISIBLE_DEVICES 를 index 로 계산합니다. 그런데
   #      서버를 srun 스텝마다 하나씩 띄우므로 index 는 언제나 0 입니다.
-  #      결과적으로 서버 4개가 전부 물리 GPU 0 을 가리키고, 첫 번째가 메모리를
-  #      거의 다 차지해(kvcache 0.95) 나머지 3개는 메모리 부족으로 즉사합니다.
-  #  (5) 서버 로그 파일 이름도 index 로 만들어서 4개가 같은 파일을 'w' 로 엽니다.
-  #      뒤에 뜬 서버가 앞의 기록을 덮어써 죽은 이유가 사라집니다.
+  #      결과적으로 서버 전부가 물리 GPU 0 을 가리키고, 첫 번째가 메모리를
+  #      거의 다 차지해(kvcache 0.95) 나머지는 메모리 부족으로 즉사합니다.
+  #
+  #      랭크를 어떻게 알아낼까가 관건인데, 실제로 시도해본 결과는 이렇습니다.
+  #        NVIDIA_VISIBLE_DEVICES  -> 컨테이너 생성 시 pyxis 가 소비해서
+  #                                   컨테이너 안에서는 값이 사라짐. 사용 불가.
+  #        MLPERF_GPU_LIST(직접주입) -> run_scaleout.sh 도 고쳐야 하고 실패.
+  #        endpoint_port           -> 랭크별로 30000,30001,... 로 다르고
+  #                                   컨테이너 안에서도 그대로 살아있음. 채택.
+  #      그래서 포트에서 랭크를 역산합니다: rank = port - 30000
+  #
+  #  (5) 서버 로그 파일 이름도 index 로 만들어서 여러 서버가 같은 파일을 'w' 로
+  #      엽니다. 뒤에 뜬 서버가 앞의 기록을 덮어써 죽은 이유가 사라집니다.
   #      (이 때문에 원인 파악이 오래 걸렸습니다)
-  if grep -q '\[PATCH4\]' "$S" 2>/dev/null && grep -q '\[PATCH5\]' "$S" 2>/dev/null; then
+  if grep -q '\[PATCH4B\]' "$S" 2>/dev/null && grep -q '\[PATCH5\]' "$S" 2>/dev/null; then
     ok "patch4,5 이미 적용됨"
   else
     cp "$S" "$S.orig45"
     python3 - "$S" <<'PYEOF' >>"$V" 2>&1
-import sys
+import re, sys
 p = sys.argv[1]
 s = open(p).read()
 n = 0
 
-old4 = """                cmd = ['trtllm-serve']
-                start_gpu = index * gpus_per_server
-                gpu_ids = list(range(start_gpu, start_gpu + gpus_per_server))
-                env['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, gpu_ids))"""
-new4 = """                cmd = ['trtllm-serve']
-                # [PATCH4] index 는 srun 스텝마다 항상 0 이라, 원본 계산식으로는
-                # 모든 서버가 물리 GPU 0 을 가리켜 2번째부터 메모리 부족으로 죽습니다.
-                # run_scaleout.sh 가 랭크별로 서로 다른 값을 넣어주는
-                # NVIDIA_VISIBLE_DEVICES 를 우선 사용합니다.
-                # 단, 컨테이너가 이미 내 몫만 보고 있으면(격리 성공) 원본 계산이
-                # 맞으므로 그대로 둡니다.
-                _nvd = os.getenv('NVIDIA_VISIBLE_DEVICES', '') or ''
-                _mine = [t for t in _nvd.replace(' ', '').split(',') if t.isdigit()]
+NEW4 = """                cmd = ['trtllm-serve']
+                # [PATCH4B] index 는 srun 스텝마다 항상 0 이라, 원본 계산식으로는
+                # 서버 전부가 물리 GPU 0 을 가리켜 2번째부터 메모리 부족으로 죽습니다.
+                # 컨테이너 안에서 랭크를 알 수 있는 유일하게 확실한 값이 포트입니다.
+                # (NVIDIA_VISIBLE_DEVICES 는 pyxis 가 소비해서 안에서는 사라짐)
+                #   rank = endpoint_port - 30000  ->  내 GPU = rank * gpus_per_server
+                # 컨테이너가 이미 내 몫만 보고 있으면 원본 계산이 맞으므로 유지합니다.
                 try:
                     _vis = len(subprocess.check_output(
                         ['nvidia-smi', '--query-gpu=index', '--format=csv,noheader'],
                         text=True).strip().splitlines())
                 except Exception:
                     _vis = 0
-                if _mine and _vis > gpus_per_server:
-                    gpu_ids = _mine[:gpus_per_server]
-                    logging.info(f"[PATCH4] container sees {_vis} GPUs; "
-                                 f"using NVIDIA_VISIBLE_DEVICES -> {gpu_ids}")
+                _rank = int(endpoint_port) - 30000
+                if _vis > gpus_per_server and 0 <= _rank < 64 \\
+                   and (_rank + 1) * gpus_per_server <= _vis:
+                    _start = _rank * gpus_per_server
+                    gpu_ids = list(range(_start, _start + gpus_per_server))
+                    logging.info(f"[PATCH4B] port={endpoint_port} rank={_rank} "
+                                 f"visible={_vis} -> GPU {gpu_ids}")
                 else:
-                    start_gpu = index * gpus_per_server
-                    gpu_ids = list(range(start_gpu, start_gpu + gpus_per_server))
+                    _start = index * gpus_per_server
+                    gpu_ids = list(range(_start, _start + gpus_per_server))
+                    logging.info(f"[PATCH4B] fallback (visible={_vis}, "
+                                 f"port={endpoint_port}) -> GPU {gpu_ids}")
                 env['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, gpu_ids))"""
 
-old5 = "                log_file = self.log_dir / f'trtllm_serve_{index}.log'"
-new5 = ("                # [PATCH5] index 가 항상 0 이라 서버 여러 개가 같은 파일을 'w' 로\n"
+# 원본은 물론이고, 이전에 시도했던 패치 잔재까지 모두 교체 대상으로 잡습니다.
+# cmd = ['trtllm-serve'] 부터 CUDA_VISIBLE_DEVICES 대입까지를 통째로 갈아냅니다.
+if "[PATCH4B]" in s:
+    print("patch4b already")
+else:
+    lines = s.splitlines(keepends=True)
+    beg = None
+    for i, l in enumerate(lines):
+        if "cmd = ['trtllm-serve']" in l and 'llmapi-launch' not in l:
+            beg = i; break
+    if beg is None:
+        print("patch4b anchor-not-found"); sys.exit(1)
+    end = None
+    for i in range(beg, min(beg + 45, len(lines))):
+        if "env['CUDA_VISIBLE_DEVICES']" in lines[i]:
+            end = i
+    if end is None:
+        print("patch4b assign-not-found"); sys.exit(1)
+    print("--- replacing lines %d..%d ---" % (beg + 1, end + 1))
+    print(''.join(lines[beg:end + 1]))
+    lines[beg:end + 1] = [NEW4 + "\n"]
+    s = ''.join(lines); n += 1
+    print("patch4b ok")
+
+OLD5 = "                log_file = self.log_dir / f'trtllm_serve_{index}.log'"
+NEW5 = ("                # [PATCH5] index 가 항상 0 이라 서버 여러 개가 같은 파일을 'w' 로\n"
         "                # 열어 서로 덮어씁니다. 죽은 이유를 남기려면 포트로 구분해야 합니다.\n"
         "                log_file = self.log_dir / f'trtllm_serve_{index}_port{endpoint_port}.log'")
 
-if "[PATCH4]" in s:   print("patch4 already")
-elif old4 in s:       s = s.replace(old4, new4); n += 1; print("patch4 ok")
-else:                 print("patch4 pattern-not-found"); sys.exit(1)
-
 if "[PATCH5]" in s:   print("patch5 already")
-elif old5 in s:       s = s.replace(old5, new5); n += 1; print("patch5 ok")
+elif OLD5 in s:       s = s.replace(OLD5, NEW5); n += 1; print("patch5 ok")
 else:                 print("patch5 pattern-not-found"); sys.exit(1)
 
 if n: open(p, 'w').write(s)
 PYEOF
-    if grep -q '\[PATCH4\]' "$S" && grep -q '\[PATCH5\]' "$S" \
+    if grep -q '\[PATCH4B\]' "$S" && grep -q '\[PATCH5\]' "$S" \
        && python3 -m py_compile "$S" 2>>"$V"; then
-      ok "patch4 서버별 GPU 배정 / patch5 서버별 로그파일 분리"
+      ok "patch4 서버별 GPU 배정(포트 기반) / patch5 서버별 로그파일 분리"
     else
       cp "$S.orig45" "$S"; ng "patch4,5 실패 — 원본 복구함 ($V 확인)"
     fi
@@ -739,7 +776,7 @@ doctor)
   grep -q "locals().get('gpu_ids'" "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
     && ok "patch3 gpu_ids 오류 해소" || ng "patch3 누락 — bash $0 patch"
   # patch4,5 는 GPU 를 여러 장 쓸 때만 필요합니다 (1장 실행에는 영향 없음)
-  grep -q '\[PATCH4\]' "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
+  grep -q '\[PATCH4B\]' "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
     && ok "patch4 서버별 GPU 배정 (다중 GPU 필수)" || ng "patch4 누락 — bash $0 patch"
   grep -q '\[PATCH5\]' "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
     && ok "patch5 서버별 로그파일 분리" || ng "patch5 누락 — bash $0 patch"
