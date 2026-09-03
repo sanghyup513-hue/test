@@ -1,15 +1,56 @@
-MLPERF_GPU_LIST가 두 번 들어가 있습니다. 이건 제가 며칠 전 run_scaleout.sh에 넣었다가 실패해서 원복했던 패치의 잔재입니다. 원복이 덜 됐거나 중복 적용됐습니다.
-
-bash
+cd /data/lsh/inference_results_v6.0/closed/NVIDIA
+echo "=== 패치 상태 ==="
 grep -n 'MLPERF_GPU_LIST' scaleout/run_scaleout.sh
 grep -c "locals().get('gpu_ids'" code/llmlib/launch_server.py
+grep -c 'versioning.parse(C.VERSION' code/common/mlcommons/loadgen.py
+grep -c 'mpi_mode=legacy' scaleout/run_scaleout.sh
+bash -n scaleout/run_scaleout.sh && echo "run_scaleout 문법 OK"
 
-MLPERF_GPU_LIST가 나오면 지워야 합니다. 405B가 4장에서 성공했던 시점에는 이게 없었습니다.
+echo "=== 실제 오류 내용 ==="
+D=$(ls -1dt build/logs/scaleout_* | head -1); echo "$D"
+for f in "$D"/slurm_logs/*.stderr; do
+  echo "--- $f"
+  tail -30 "$f"
+done
+
+stderr 내용이 핵심입니다. exit code 2는 make 실패라는 사실만 말해주고, 원인은 저 파일에만 있습니다.
+
+MLPERF_GPU_LIST가 나오면
+
+며칠 전 제가 넣었다가 실패해서 원복했던 패치입니다. 405B가 4장에서 성공했던 시점에는 없었습니다. 원복이 덜 됐거나 중복 적용된 상태입니다.
+
+백업이 있으면 그게 가장 확실합니다.
 
 bash
-cp scaleout/run_scaleout.sh /tmp/rs-$(date +%H%M).bak
-sed -i 's/,MLPERF_GPU_LIST//g; s/; export MLPERF_GPU_LIST="${gpu_list}"//' scaleout/run_scaleout.sh
+ls -la scaleout/run_scaleout.sh.orig /tmp/rs.bak /tmp/run_scaleout.sh.bak 2>/dev/null
+
+.orig가 있으면 그걸로 되돌리고 mpi_mode 패치만 다시 적용하세요.
+
+bash
+cd /data/lsh/inference_results_v6.0/closed/NVIDIA
+cp scaleout/run_scaleout.sh /tmp/rs-broken-$(date +%H%M).sh
+cp scaleout/run_scaleout.sh.orig scaleout/run_scaleout.sh
+sed -i 's|run_args="\$run_args --mpi_mode=leader"|run_args="$run_args --mpi_mode=legacy"|g' scaleout/run_scaleout.sh
 bash -n scaleout/run_scaleout.sh && echo "문법 OK"
 grep -n 'MLPERF_GPU_LIST\|mpi_mode' scaleout/run_scaleout.sh
 
-sed가 정확히 먹었는지 grep으로 확인하세요. 안 맞으면 백업에서 되돌릴 수 있습니다.
+MLPERF_GPU_LIST가 사라지고 mpi_mode=legacy만 남아야 합니다.
+
+백업이 없으면
+
+repo에서 원본만 다시 받아 mpi_mode만 패치하는 방법이 있습니다.
+
+bash
+cd /data/lsh/inference_results_v6.0
+git checkout -- closed/NVIDIA/scaleout/run_scaleout.sh 2>/dev/null \
+  || curl -sL -o /tmp/rs-fresh.sh \
+     https://raw.githubusercontent.com/mlcommons/inference_results_v6.0/main/closed/NVIDIA/scaleout/run_scaleout.sh
+[ -s /tmp/rs-fresh.sh ] && cp /tmp/rs-fresh.sh closed/NVIDIA/scaleout/run_scaleout.sh
+cd closed/NVIDIA
+sed -i 's|run_args="\$run_args --mpi_mode=leader"|run_args="$run_args --mpi_mode=legacy"|g' scaleout/run_scaleout.sh
+bash -n scaleout/run_scaleout.sh && grep -n 'mpi_mode' scaleout/run_scaleout.sh
+그다음
+bash
+bash ~/mlperf-inference-b300.sh doctor
+bash ~/mlperf-inference-b300.sh clean
+bash ~/mlperf-inference-b300.sh run llama2-70b offline 4
