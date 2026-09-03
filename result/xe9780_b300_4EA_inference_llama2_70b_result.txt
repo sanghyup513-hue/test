@@ -1,0 +1,1051 @@
+dell@dell:/data/lsh/mlperf-runs$ cat inference-0903-1557.log
+salloc: Granted job allocation 135
+Using SLURM_JOBID from environment: 135
+Fetched nodelist from job 135: dell
+Calculated harness system: B300-SXM-270GBx4
+Using SLURM allocation nodelist: dell
+============================================
+MLPerf Scaleout - all
+============================================
+Atomic system: B300-SXM-270GBx1
+Harness system: B300-SXM-270GBx4
+GPUs per DP: 1
+GPUs per node: 4
+DP multiplicity: 4
+Allocated nodes: 1
+Total GPUs: 4
+Log directory: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42
+Harness target: run_harness
+Server spawn time: 180s
+Dry run: false
+Deployment: Intra-node (4 DP/node, 1 tasks/DP)
+============================================
+Launching DP rank 0 on dell (GPUs: 0, URL: dell:30000, IPC: tcp://127.0.0.1:10012)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus0.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus0.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10012,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+Launching DP rank 1 on dell (GPUs: 1, URL: dell:30001, IPC: tcp://127.0.0.1:10013)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus1.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus1.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10013,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30001 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+Launching DP rank 2 on dell (GPUs: 2, URL: dell:30002, IPC: tcp://127.0.0.1:10014)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus2.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus2.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10014,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30002 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+Launching DP rank 3 on dell (GPUs: 3, URL: dell:30003, IPC: tcp://127.0.0.1:10015)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus3.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/slurm_logs/run_llm_server_dell_gpus3.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10015,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30003 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+All DP ranks launched in background. Check logs for details.
+Server URLs: dell:30000,dell:30001,dell:30002,dell:30003
+============================================
+Launching harness (target: run_harness)...
+================================================
+Executing srun command:
+================================================
+srun \
+    --export=ALL,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --overlap \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_harness \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Offline --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000,dell:30001,dell:30002,dell:30003 \
+    SYSTEM_NAME=B300-SXM-270GBx4
+
+/bin/bash: line 1: [: -ge: unary operator expected
+[2026-09-03 16:10:08,782 font_manager.py:1639 INFO RANK=0] generated new fontManager
+[2026-09-03 16:10:09,050 main.py:800 INFO RANK=0] Detected system ID: B300-SXM-270GBx4
+[2026-09-03 16:10:09,051 main.py:139 INFO RANK=0] Loading configs from /work/configs/B300-SXM-270GBx4/Offline/llama2-70b.py
+[2026-09-03 16:10:09,062 INFO] [ builder.py:143 LLAMA2QuantizerConfig.__post_init__ ] Using NVFP4 for FP4 quantization
+[2026-09-03 16:10:09,062 INFO] [ builder.py:303 HFQuantizerOp.run ] Quantized checkpoint already exists at: /work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4. Set --force_calibration to overwrite.
+/bin/dash: 1: sudo: not found
+[2026-09-03 16:10:11,482 harness.py:93 INFO RANK=0] WARNING: Failed to set vboost slider. Skipping...
+[2026-09-03 16:10:12,146 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:12,146 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:12,146 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:12,381 utils.py:430 INFO RANK=0] Harness iteration stats will be dumped to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/B300-SXM-270GBx4_TRT/llama2-70b-99/Offline/harness_iteration_stats.log
+[2026-09-03 16:10:12,383 INFO] [ TrtllmEndpointCore#0 trtllm_endpoint_core.py:137 TrtllmEndpointCore.__init__ ] Using HTTP backend: custom_http (AsyncLLMHttpRequestManager)
+[2026-09-03 16:10:16,593 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:16,593 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:16,594 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:16,722 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:16,722 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:16,722 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:16,968 INFO] [ TrtllmEndpointCore#0 trtllm_endpoint_core.py:153 TrtllmEndpointCore.__init__ ] Initialized TrtllmEndpointCore with 2 workers (endpoint_url: dell:30000, max_concurrency: 3072)
+[2026-09-03 16:10:16,969 INFO] [ factory.py:129 create_server ] Initialized TrtllmEndpointCore#0 with HarnessConfig:
+TrtllmEndpointConfig(_core_type=<CoreType.TRTLLM_ENDPOINT: 'trtllm_endpoint'>,
+                     tensor_parallelism=1,
+                     pipeline_parallelism=1,
+                     moe_expert_parallelism=None,
+                     enable_ttft_latency_tracker=False,
+                     show_steady_state_progress=False,
+                     gen_config_path=PosixPath('code/llama2-70b/tensorrt/generation_config.json'),
+                     test_mode='PerformanceOnly',
+                     workload=<code.common.workload.Workload object at 0x60c506275f0>,
+                     traffic_distribution_policy='isl_load_balancing',
+                     log_dir=PosixPath('/work/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42'),
+                     capture_server_logs_dir=None,
+                     disagg_bench_mode=None,
+                     readiness_timeout=3600,
+                     gen_config=GenerationConfig(eos_token_id=2,
+                                                 bos_token_id=1,
+                                                 max_output_len=1024,
+                                                 min_output_len=1,
+                                                 name='llama',
+                                                 runtime_beam_width=1,
+                                                 streaming=False,
+                                                 temperature=1.0,
+                                                 top_k=1,
+                                                 top_p=1,
+                                                 use_stop_tokens=False,
+                                                 skip_special_tokens=True),
+                     random_seed=0,
+                     build_flags={'context_fmha': 'enable',
+                                  'enable_attention_dp': None,
+                                  'kv_cache_type': 'paged',
+                                  'max_batch_size': None,
+                                  'max_beam_width': 1,
+                                  'max_input_len': None,
+                                  'max_num_tokens': None,
+                                  'max_seq_len': None,
+                                  'moe_expert_parallelism': None,
+                                  'multiple_profiles': 'enable',
+                                  'pipeline_parallelism': 1,
+                                  'remove_input_padding': 'enable',
+                                  'tensor_parallelism': 1,
+                                  'torch_compile_enabled': None,
+                                  'use_fp8_context_fmha': 'enable',
+                                  'use_fused_mlp': 'enable',
+                                  'use_paged_context_fmha': 'enable'},
+                     runtime_flags={'adp_balancing_batching_wait_iters': 10,
+                                    'adp_balancing_enable': True,
+                                    'adp_balancing_timeout_iters': 500,
+                                    'batch_scheduler_policy': 'MAX_UTILIZATION',
+                                    'context_chunking_policy': 'FIRST_COME_FIRST_SERVED',
+                                    'cuda_graph_batch_sizes': None,
+                                    'cuda_graph_padding_enabled': False,
+                                    'dynamic_batch_moving_average_window': 128,
+                                    'enable_batch_size_tuning': False,
+                                    'enable_chunked_context': False,
+                                    'enable_lm_head_tp_in_adp': None,
+                                    'enable_max_num_tokens_tuning': False,
+                                    'exclude_input_from_output': True,
+                                    'http_backend': 'custom_http',
+                                    'kvcache_free_gpu_mem_frac': 0.8,
+                                    'max_batch_size': None,
+                                    'max_concurrency': 3072,
+                                    'max_num_tokens': None,
+                                    'moe_backend': 'CUTLASS',
+                                    'moe_expert_parallelism': None,
+                                    'num_postprocess_workers': 4,
+                                    'pipeline_parallelism': 1,
+                                    'sampler_type': 'TRTLLMSampler',
+                                    'speculative_decoding': {'decoding_type': None,
+                                                             'eagle3_layers_to_capture': None,
+                                                             'max_draft_len': None,
+                                                             'model_dir': None,
+                                                             'num_nextn_predict_layers': None},
+                                    'tensor_parallelism': 1,
+                                    'trtllm_backend': 'pytorch',
+                                    'use_cuda_graphs': False,
+                                    'use_inflight_batching': True,
+                                    'use_low_precision_moe_combine': None,
+                                    'workers_per_core': 2},
+                     checkpoint_flags={'kv_cache_dtype': 'fp8'},
+                     use_cuda_graphs=False,
+                     model_path=PosixPath('/work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4'),
+                     enable_metrics=False,
+                     extra_config_yaml='backend: pytorch\n'
+                                       'tensor_parallel_size: 1\n'
+                                       'pipeline_parallel_size: 1\n'
+                                       'print_iter_log: false\n'
+                                       'enable_iter_perf_stats: false\n'
+                                       'return_perf_metrics: false\n'
+                                       'enable_layerwise_nvtx_marker: false\n'
+                                       'enable_chunked_prefill: false\n'
+                                       'scheduler_config:\n'
+                                       '  capacity_scheduler_policy: '
+                                       'MAX_UTILIZATION\n'
+                                       '  context_chunking_policy: '
+                                       'FIRST_COME_FIRST_SERVED\n'
+                                       'kv_cache_config:\n'
+                                       '  dtype: fp8\n'
+                                       '  free_gpu_memory_fraction: 0.8\n'
+                                       '  enable_block_reuse: false\n'
+                                       'num_postprocess_workers: 4\n'
+                                       'moe_config:\n'
+                                       '  backend: CUTLASS\n'
+                                       'cache_transceiver_config:\n'
+                                       '  backend: DEFAULT\n'
+                                       'sampler_type: TRTLLMSampler\n',
+                     trtllm_endpoint_urls=['dell:30000', 'dell:30001',
+                                           'dell:30002', 'dell:30003'],
+                     endpoint_url='dell:30000',
+                     mpi_mode=<MPIMode.LEGACY: 'legacy'>,
+                     trtllm_yml_override=None,
+                     harness_use_hf_tokenizer=False,
+                     server_use_hf_tokenizer=False,
+                     global_size=None)
+[2026-09-03 16:10:16,971 INFO] [ TrtllmEndpointCore#1 trtllm_endpoint_core.py:137 TrtllmEndpointCore.__init__ ] Using HTTP backend: custom_http (AsyncLLMHttpRequestManager)
+[2026-09-03 16:10:21,458 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:21,458 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:21,458 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:21,489 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:21,489 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:21,489 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:21,727 INFO] [ TrtllmEndpointCore#1 trtllm_endpoint_core.py:153 TrtllmEndpointCore.__init__ ] Initialized TrtllmEndpointCore with 2 workers (endpoint_url: dell:30001, max_concurrency: 3072)
+[2026-09-03 16:10:21,728 INFO] [ factory.py:131 create_server ] Initialized TrtllmEndpointCore#1.
+[2026-09-03 16:10:21,729 INFO] [ TrtllmEndpointCore#2 trtllm_endpoint_core.py:137 TrtllmEndpointCore.__init__ ] Using HTTP backend: custom_http (AsyncLLMHttpRequestManager)
+[2026-09-03 16:10:25,983 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:25,983 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:25,983 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:26,142 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:26,142 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:26,142 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:26,386 INFO] [ TrtllmEndpointCore#2 trtllm_endpoint_core.py:153 TrtllmEndpointCore.__init__ ] Initialized TrtllmEndpointCore with 2 workers (endpoint_url: dell:30002, max_concurrency: 3072)
+[2026-09-03 16:10:26,387 INFO] [ factory.py:131 create_server ] Initialized TrtllmEndpointCore#2.
+[2026-09-03 16:10:26,388 INFO] [ TrtllmEndpointCore#3 trtllm_endpoint_core.py:137 TrtllmEndpointCore.__init__ ] Using HTTP backend: custom_http (AsyncLLMHttpRequestManager)
+[2026-09-03 16:10:30,900 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:30,900 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:30,900 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:30,945 utils.py:148 INFO RANK=0] Note: detected 344 virtual cores but NumExpr set to maximum of 64, check "NUMEXPR_MAX_THREADS" environment variable.
+[2026-09-03 16:10:30,945 utils.py:151 INFO RANK=0] Note: NumExpr detected 344 cores but "NUMEXPR_MAX_THREADS" not set, so enforcing safe limit of 16.
+[2026-09-03 16:10:30,945 utils.py:164 INFO RANK=0] NumExpr defaulting to 16 threads.
+[2026-09-03 16:10:31,182 INFO] [ TrtllmEndpointCore#3 trtllm_endpoint_core.py:153 TrtllmEndpointCore.__init__ ] Initialized TrtllmEndpointCore with 2 workers (endpoint_url: dell:30003, max_concurrency: 3072)
+[2026-09-03 16:10:31,183 INFO] [ factory.py:131 create_server ] Initialized TrtllmEndpointCore#3.
+[2026-09-03 16:10:31,183 INFO] [ factory.py:137 create_server ] Factory created 4 CoreType.TRTLLM_ENDPOINT cores
+[2026-09-03 16:10:31,183 INFO] [ LLMServer-148997 server.py:111 LLMServer.__init__ ] LLMServer initialized with 4 cores
+[2026-09-03 16:10:31,183 INFO] [ warmup.py:44 WarmupManager.run_health_checks_with_retry ] Running health checks on all cores...
+[2026-09-03 16:10:31,297 INFO] [ warmup.py:60 WarmupManager.check_core ] Core TrtllmEndpointCore#2 is healthy.
+[2026-09-03 16:10:31,298 INFO] [ warmup.py:60 WarmupManager.check_core ] Core TrtllmEndpointCore#0 is healthy.
+[2026-09-03 16:10:31,298 INFO] [ warmup.py:60 WarmupManager.check_core ] Core TrtllmEndpointCore#1 is healthy.
+[2026-09-03 16:10:31,298 INFO] [ warmup.py:60 WarmupManager.check_core ] Core TrtllmEndpointCore#3 is healthy.
+[2026-09-03 16:10:31,298 INFO] [ warmup.py:87 WarmupManager.run_health_checks_with_retry ] All cores are ready.
+[2026-09-03 16:10:31,298 INFO] [ llmlib/__init__.py:167 TrtllmServeClientHarnessOp.wrap_lg_test ] Warming up the server...
+[2026-09-03 16:10:31,299 INFO] [ warmup.py:100 WarmupManager.warmup ] Warming up 4 cores in parallel with 10 queries each...
+[2026-09-03 16:10:43,195 INFO] [ warmup.py:131 WarmupManager.warmup ] All cores warmed up successfully.
+[2026-09-03 16:10:43,195 INFO] [ llmlib/__init__.py:169 TrtllmServeClientHarnessOp.wrap_lg_test ] Server warmup completed.
+[2026-09-03 16:10:43,195 WARNING] [ llmlib/__init__.py:176 TrtllmServeClientHarnessOp.wrap_lg_test ] Disabled automatic garbage collection for the test run.
+Processing: 100%|██████████| 589824/589824 [47:15<00:00, 5.35samples/s] Stats=[ 208.02 samples/s, 56763.45 tokens/s ] ================================================
+MLPerf Results Summary
+================================================
+SUT name : PySUT
+Scenario : Offline
+Mode     : PerformanceOnly
+Samples per second: 207.794
+Tokens per second: 56701
+Result is : VALID
+  Min duration satisfied : Yes
+  Min queries satisfied : Yes
+  Early stopping satisfied: Yes
+
+================================================
+Additional Stats
+================================================
+Min latency (ns)                : 3121968222
+Max latency (ns)                : 2838504339599
+Mean latency (ns)               : 1420936090586
+50.00 percentile latency (ns)   : 1421712414480
+90.00 percentile latency (ns)   : 2536949597149
+95.00 percentile latency (ns)   : 2675889624462
+97.00 percentile latency (ns)   : 2732102972115
+99.00 percentile latency (ns)   : 2780690694530
+99.90 percentile latency (ns)   : 2812272791878
+
+
+================================================
+Test Parameters Used
+================================================
+samples_per_query : 580800
+target_qps : 220
+ttft_latency (ns): 2000000000
+tpot_latency (ns): 200000000
+max_async_queries : 1
+min_duration (ms): 2400000
+max_duration (ms): 0
+min_query_count : 1
+max_query_count : 0
+qsl_rng_seed : 2465351861681999779
+sample_index_rng_seed : 14276810075590677512
+schedule_rng_seed : 3936089224930324775
+accuracy_log_rng_seed : 0
+accuracy_log_probability : 0
+accuracy_log_sampling_target : 0
+print_timestamps : 0
+performance_issue_unique : 0
+performance_issue_same : 0
+performance_issue_same_index : 0
+performance_sample_count : 24576
+accuracy_sample_count : 24576
+WARNING: sample_concatenate_permutation was set to true.
+Generated samples per query might be different as the one in the setting.
+Check the generated_samples_per_query line in the detailed log for the real
+samples_per_query value
+
+No warnings encountered during test.
+
+No errors encountered during test.
+[2026-09-03 16:58:02,023 INFO] [ llmlib/__init__.py:182 TrtllmServeClientHarnessOp.wrap_lg_test ] Test Complete. Cleaning up LLMServer...
+Processing: 100%|██████████| 589824/589824 [47:16<00:00, 5.35samples/s] Stats=[ 208.02 samples/s, 56763.45 tokens/s ]
+[2026-09-03 16:58:02,747 utils.py:442 INFO RANK=0] Harness iteration stats dumped to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/B300-SXM-270GBx4_TRT/llama2-70b-99/Offline/harness_iteration_stats.log
+[2026-09-03 16:58:02,757 utils.py:391 INFO RANK=0] Harness stats saved to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/B300-SXM-270GBx4_TRT/llama2-70b-99/Offline/harness_stats.log
+[2026-09-03 16:58:02,869 utils.py:421 INFO RANK=0] Harness timeline plot generated to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-135_2026.09.03-15.57.42/B300-SXM-270GBx4_TRT/llama2-70b-99/Offline/harness_stats_timeline.png
+[2026-09-03 16:58:02,870 INFO] [ TrtllmEndpointCore#2 base.py:454 TrtllmEndpointCore.__del__ ] Completed 147886 samples.
+[2026-09-03 16:58:02,871 INFO] [ TrtllmEndpointCore#1 base.py:454 TrtllmEndpointCore.__del__ ] Completed 147317 samples.
+[2026-09-03 16:58:02,871 INFO] [ TrtllmEndpointCore#0 base.py:454 TrtllmEndpointCore.__del__ ] Completed 147147 samples.
+[2026-09-03 16:58:02,872 INFO] [ LLMServer-148997 server.py:189 LLMServer.stop_work ] Total Samples Completed: 589824
+[2026-09-03 16:58:02,872 INFO] [ TrtllmEndpointCore#3 base.py:454 TrtllmEndpointCore.__del__ ] Completed 147474 samples.
+/bin/dash: 1: sudo: not found
+[2026-09-03 16:58:02,877 harness.py:101 INFO RANK=0] WARNING: Failed to reset vboost slider.
+make[1]: Entering directory '/work'
+/bin/bash: line 1: [: -ge: unary operator expected
+
+======================== Result summaries: ========================
+
+Offline Scenario:
++----------------------+---------------+-----------+----------+--------------------------+------------------+------------------+
+| System Name          | Benchmark     | Setting   | Valid?   | Metric Name              |   Measured Value | Avg. Power (W)   |
++======================+===============+===========+==========+==========================+==================+==================+
+| B300-SXM-270GBx4_TRT | llama2-70b-99 | cp990     | VALID    | result_tokens_per_second |         56701.00 | N/A              |
++----------------------+---------------+-----------+----------+--------------------------+------------------+------------------+
+make[1]: Leaving directory '/work'
+salloc: Relinquishing job allocation 135
+salloc: Job allocation 135 has been revoked.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+dell@dell:/data/lsh/mlperf-runs$ cat inference-0903-2325.log
+salloc: Granted job allocation 138
+Using SLURM_JOBID from environment: 138
+Fetched nodelist from job 138: dell
+Calculated harness system: B300-SXM-270GBx4
+Using SLURM allocation nodelist: dell
+============================================
+MLPerf Scaleout - all
+============================================
+Atomic system: B300-SXM-270GBx1
+Harness system: B300-SXM-270GBx4
+GPUs per DP: 1
+GPUs per node: 4
+DP multiplicity: 4
+Allocated nodes: 1
+Total GPUs: 4
+Log directory: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31
+Harness target: run_harness
+Server spawn time: 180s
+Dry run: false
+Deployment: Intra-node (4 DP/node, 1 tasks/DP)
+============================================
+Launching DP rank 0 on dell (GPUs: 0, URL: dell:30000, IPC: tcp://127.0.0.1:10012)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus0.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus0.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10012,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Server --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+Launching DP rank 1 on dell (GPUs: 1, URL: dell:30001, IPC: tcp://127.0.0.1:10013)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus1.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus1.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10013,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Server --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30001 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+Launching DP rank 2 on dell (GPUs: 2, URL: dell:30002, IPC: tcp://127.0.0.1:10014)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus2.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus2.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10014,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Server --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30002 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+Launching DP rank 3 on dell (GPUs: 3, URL: dell:30003, IPC: tcp://127.0.0.1:10015)...
+Sleeping for 180 seconds to avoid IPC port collision race condition. Increase --server-spawn-time if you see ZMQ errors.
+================================================
+Executing srun command:
+================================================
+srun \
+    --overlap \
+    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus3.stdout \
+    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/slurm_logs/run_llm_server_dell_gpus3.stderr \
+    --export=ALL,NVIDIA_VISIBLE_DEVICES,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10015,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --nodelist=dell \
+    --ntasks-per-node=1 \
+    --mpi=pmix \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_llm_server \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Server --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30003 \
+    SYSTEM_NAME=B300-SXM-270GBx1
+
+All DP ranks launched in background. Check logs for details.
+Server URLs: dell:30000,dell:30001,dell:30002,dell:30003
+============================================
+Launching harness (target: run_harness)...
+================================================
+Executing srun command:
+================================================
+srun \
+    --export=ALL,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
+    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
+    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
+    --container-workdir=/work \
+    --container-remap-root \
+    --nodes=1 \
+    --overlap \
+    --overlap \
+    --cpu-bind=none \
+    --mpi=pmi2 \
+    make \
+    run_harness \
+    RUN_ARGS=--benchmarks=llama2-70b --scenarios=Server --core_type=trtllm_endpoint  --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30000,dell:30001,dell:30002,dell:30003 \
+    SYSTEM_NAME=B300-SXM-270GBx4
+
+[2026-09-03 23:38:07,831 INFO] [ factory.py:129 create_server ] Initialized TrtllmEndpointCore#0 with HarnessConfig:
+TrtllmEndpointConfig(_core_type=<CoreType.TRTLLM_ENDPOINT: 'trtllm_endpoint'>,
+                     tensor_parallelism=1,
+                     pipeline_parallelism=1,
+                     moe_expert_parallelism=None,
+                     enable_ttft_latency_tracker=False,
+                     show_steady_state_progress=False,
+                     gen_config_path=PosixPath('code/llama2-70b/tensorrt/generation_config.json'),
+                     test_mode='PerformanceOnly',
+                     workload=<code.common.workload.Workload object at 0x129619aef710>,
+                     traffic_distribution_policy='isl_load_balancing',
+                     log_dir=PosixPath('/work/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31'),
+                     capture_server_logs_dir=None,
+                     disagg_bench_mode=None,
+                     readiness_timeout=3600,
+                     gen_config=GenerationConfig(eos_token_id=2,
+                                                 bos_token_id=1,
+                                                 max_output_len=1024,
+                                                 min_output_len=1,
+                                                 name='llama',
+                                                 runtime_beam_width=1,
+                                                 streaming=True,
+                                                 temperature=1.0,
+                                                 top_k=1,
+                                                 top_p=1,
+                                                 use_stop_tokens=False,
+                                                 skip_special_tokens=True),
+                     random_seed=0,
+                     build_flags={'context_fmha': 'enable',
+                                  'enable_attention_dp': None,
+                                  'kv_cache_type': 'paged',
+                                  'max_batch_size': None,
+                                  'max_beam_width': 1,
+                                  'max_input_len': None,
+                                  'max_num_tokens': None,
+                                  'max_seq_len': None,
+                                  'moe_expert_parallelism': None,
+                                  'multiple_profiles': 'enable',
+                                  'pipeline_parallelism': 1,
+                                  'remove_input_padding': 'enable',
+                                  'tensor_parallelism': 1,
+                                  'torch_compile_enabled': None,
+                                  'use_fp8_context_fmha': 'enable',
+                                  'use_fused_mlp': 'enable',
+                                  'use_paged_context_fmha': 'enable'},
+                     runtime_flags={'adp_balancing_batching_wait_iters': 10,
+                                    'adp_balancing_enable': True,
+                                    'adp_balancing_timeout_iters': 500,
+                                    'batch_scheduler_policy': 'MAX_UTILIZATION',
+                                    'context_chunking_policy': 'FIRST_COME_FIRST_SERVED',
+                                    'cuda_graph_batch_sizes': None,
+                                    'cuda_graph_padding_enabled': False,
+                                    'dynamic_batch_moving_average_window': 128,
+                                    'enable_batch_size_tuning': False,
+                                    'enable_chunked_context': False,
+                                    'enable_lm_head_tp_in_adp': None,
+                                    'enable_max_num_tokens_tuning': False,
+                                    'exclude_input_from_output': True,
+                                    'http_backend': 'custom_http',
+                                    'kvcache_free_gpu_mem_frac': 0.8,
+                                    'max_batch_size': None,
+                                    'max_concurrency': 3072,
+                                    'max_num_tokens': None,
+                                    'moe_backend': 'CUTLASS',
+                                    'moe_expert_parallelism': None,
+                                    'num_postprocess_workers': 4,
+                                    'pipeline_parallelism': 1,
+                                    'sampler_type': 'TRTLLMSampler',
+                                    'speculative_decoding': {'decoding_type': None,
+                                                             'eagle3_layers_to_capture': None,
+                                                             'max_draft_len': None,
+                                                             'model_dir': None,
+                                                             'num_nextn_predict_layers': None},
+                                    'tensor_parallelism': 1,
+                                    'trtllm_backend': 'pytorch',
+                                    'use_cuda_graphs': False,
+                                    'use_inflight_batching': True,
+                                    'use_low_precision_moe_combine': None,
+                                    'workers_per_core': 2},
+                     checkpoint_flags={'kv_cache_dtype': 'fp8'},
+                     use_cuda_graphs=False,
+                     model_path=PosixPath('/work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4'),
+                     enable_metrics=False,
+                     extra_config_yaml='backend: pytorch\n'
+                                       'tensor_parallel_size: 1\n'
+                                       'pipeline_parallel_size: 1\n'
+                                       'print_iter_log: false\n'
+                                       'enable_iter_perf_stats: false\n'
+                                       'return_perf_metrics: false\n'
+                                       'enable_layerwise_nvtx_marker: false\n'
+                                       'enable_chunked_prefill: false\n'
+                                       'scheduler_config:\n'
+                                       '  capacity_scheduler_policy: '
+                                       'MAX_UTILIZATION\n'
+                                       '  context_chunking_policy: '
+                                       'FIRST_COME_FIRST_SERVED\n'
+                                       'kv_cache_config:\n'
+                                       '  dtype: fp8\n'
+                                       '  free_gpu_memory_fraction: 0.8\n'
+                                       '  enable_block_reuse: false\n'
+                                       'num_postprocess_workers: 4\n'
+                                       'moe_config:\n'
+                                       '  backend: CUTLASS\n'
+                                       'cache_transceiver_config:\n'
+                                       '  backend: DEFAULT\n'
+                                       'sampler_type: TRTLLMSampler\n',
+                     trtllm_endpoint_urls=['dell:30000', 'dell:30001',
+                                           'dell:30002', 'dell:30003'],
+                     endpoint_url='dell:30000',
+                     mpi_mode=<MPIMode.LEGACY: 'legacy'>,
+                     trtllm_yml_override=None,
+                     harness_use_hf_tokenizer=False,
+                     server_use_hf_tokenizer=False,
+                     global_size=None)
+[2026-09-03 23:38:07,832 INFO] [ TrtllmEndpointCore#1 trtllm_endpoint_core.py:137 TrtllmEndpointCore.__init__ ] Using HTTP backend: custom_http (AsyncLLMHttpRequestManager)
+[2026-09-03 23:38:34,030 WARNING] [ llmlib/__init__.py:176 TrtllmServeClientHarnessOp.wrap_lg_test ] Disabled automatic garbage collection for the test run.
+Processing: 100%|█████████▉| 368634/368640 [31:32<00:00, 17.70samples/s] Stats=[ 194.82 samples/s, 53210.20 tokens/s, 0.46 TTFT(s), 150.12 TPOT(ms) ]================================================
+MLPerf Results Summary
+================================================
+SUT name : PySUT
+Scenario : Server
+Mode     : PerformanceOnly
+Completed samples per second    : 197.66
+Completed tokens per second: 53988.24
+Result is : VALID
+  Performance constraints satisfied : Yes
+  Min duration satisfied : Yes
+  Min queries satisfied : Yes
+  Early stopping satisfied: Yes
+TTFT Early Stopping Result:
+ * Run successful.
+TPOT Early Stopping Result:
+ * Run successful.
+
+================================================
+Additional Stats
+================================================
+Scheduled samples per second : 200.11
+Min latency (ns)                : 180382123
+Max latency (ns)                : 153372698997
+Mean latency (ns)               : 35874073204
+50.00 percentile latency (ns)   : 30704458356
+90.00 percentile latency (ns)   : 66165398261
+95.00 percentile latency (ns)   : 82266655491
+97.00 percentile latency (ns)   : 95652625499
+99.00 percentile latency (ns)   : 124802797466
+99.90 percentile latency (ns)   : 145851739597
+
+Completed tokens per second                 : 53988.24
+Min First Token latency (ns)                : 31441261
+Max First Token latency (ns)                : 950134190
+Mean First Token latency (ns)               : 339255116
+50.00 percentile first token latency (ns)   : 342650682
+90.00 percentile first token latency (ns)   : 412801944
+95.00 percentile first token latency (ns)   : 429207307
+97.00 percentile first token latency (ns)   : 439271094
+99.00 percentile first token latency (ns)   : 457476870
+99.90 percentile first token latency (ns)   : 490848037
+
+Min Time per Output Token (ns)                : 16057206
+Max Time per Output Token (ns)                : 168495945
+Mean Time per Output Token (ns)               : 130651749
+50.00 percentile time to output token (ns)   : 134596582
+90.00 percentile time to output token (ns)   : 144283783
+95.00 percentile time to output token (ns)   : 146227062
+97.00 percentile time to output token (ns)   : 147511175
+99.00 percentile time to output token (ns)   : 150120554
+99.90 percentile time to output token (ns)   : 151714906
+
+================================================
+Test Parameters Used
+================================================
+samples_per_query : 1
+target_qps : 200
+ttft_latency (ns): 2000000000
+tpot_latency (ns): 200000000
+max_async_queries : 0
+min_duration (ms): 1800000
+max_duration (ms): 0
+min_query_count : 100
+max_query_count : 0
+qsl_rng_seed : 2465351861681999779
+sample_index_rng_seed : 14276810075590677512
+schedule_rng_seed : 3936089224930324775
+accuracy_log_rng_seed : 0
+accuracy_log_probability : 0
+accuracy_log_sampling_target : 0
+print_timestamps : 0
+performance_issue_unique : 0
+performance_issue_same : 0
+performance_issue_same_index : 0
+performance_sample_count : 24576
+accuracy_sample_count : 24576
+WARNING: sample_concatenate_permutation was set to true.
+Generated samples per query might be different as the one in the setting.
+Check the generated_samples_per_query line in the detailed log for the real
+samples_per_query value
+
+No warnings encountered during test.
+
+No errors encountered during test.
+[2026-09-04 00:10:07,551 INFO] [ llmlib/__init__.py:182 TrtllmServeClientHarnessOp.wrap_lg_test ] Test Complete. Cleaning up LLMServer...
+Processing: 100%|██████████| 368640/368640 [31:34<00:00, 17.70samples/s] Stats=[ 194.82 samples/s, 53210.20 tokens/s, 0.46 TTFT(s), 150.12 TPOT(ms) ]
+[2026-09-04 00:10:09,175 utils.py:442 INFO RANK=0] Harness iteration stats dumped to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/B300-SXM-270GBx4_TRT/llama2-70b-99/Server/harness_iteration_stats.log
+[2026-09-04 00:10:09,188 utils.py:391 INFO RANK=0] Harness stats saved to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/B300-SXM-270GBx4_TRT/llama2-70b-99/Server/harness_stats.log
+[2026-09-04 00:10:09,488 utils.py:421 INFO RANK=0] Harness timeline plot generated to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-138_2026.09.03-23.25.31/B300-SXM-270GBx4_TRT/llama2-70b-99/Server/harness_stats_timeline.png
+[2026-09-04 00:10:09,489 INFO] [ TrtllmEndpointCore#2 base.py:454 TrtllmEndpointCore.__del__ ] Completed 91496 samples.
+[2026-09-04 00:10:09,489 INFO] [ TrtllmEndpointCore#1 base.py:454 TrtllmEndpointCore.__del__ ] Completed 92009 samples.
+[2026-09-04 00:10:09,489 INFO] [ TrtllmEndpointCore#0 base.py:454 TrtllmEndpointCore.__del__ ] Completed 92982 samples.
+[2026-09-04 00:10:09,489 INFO] [ LLMServer-320587 server.py:189 LLMServer.stop_work ] Total Samples Completed: 368640
+[2026-09-04 00:10:09,489 INFO] [ TrtllmEndpointCore#3 base.py:454 TrtllmEndpointCore.__del__ ] Completed 92153 samples.
+/bin/dash: 1: sudo: not found
+[2026-09-04 00:10:09,495 harness.py:101 INFO RANK=0] WARNING: Failed to reset vboost slider.
+make[1]: Entering directory '/work'
+/bin/bash: line 1: [: -ge: unary operator expected
+
+======================== Result summaries: ========================
+
+Server Scenario:
++----------------------+---------------+-----------+----------+--------------------------+------------------------------------+------------------+------------------+
+| System Name          | Benchmark     | Setting   | Valid?   | Per-query time usage     | Metric Name                        |   Measured Value | Avg. Power (W)   |
++======================+===============+===========+==========+==========================+====================================+==================+==================+
+| B300-SXM-270GBx4_TRT | llama2-70b-99 | cp990     | VALID    | TTFT: 22.9%, TPOT: 75.1% | result_completed_tokens_per_second |         53988.20 | N/A              |
++----------------------+---------------+-----------+----------+--------------------------+------------------------------------+------------------+------------------+
+  * Note: 'Per-query time usage' is the measured 99th-percentile latency divided by the requested server latency. This value should not exceed 100% for a 'VALID' result.
+make[1]: Leaving directory '/work'
+dell@dell:/data/lsh/mlperf-runs$ cat inference-0904-0020.log
+Processing: 100%|█████████▉| 344062/344064 [32:29<00:00, 10.82samples/s] Stats=[ 176.45 samples/s, 48004.38 tokens/s, 0.24 TTFT(s), 73.83 TPOT(ms) ]================================================
+MLPerf Results Summary
+================================================
+SUT name : PySUT
+Scenario : Server
+Mode     : PerformanceOnly
+Completed samples per second    : 177.89
+Completed tokens per second: 48398.30
+Result is : VALID
+  Performance constraints satisfied : Yes
+  Min duration satisfied : Yes
+  Min queries satisfied : Yes
+  Early stopping satisfied: Yes
+TTFT Early Stopping Result:
+ * Run successful.
+TPOT Early Stopping Result:
+ * Run successful.
+
+================================================
+Additional Stats
+================================================
+Scheduled samples per second : 180.14
+Min latency (ns)                : 188044219
+Max latency (ns)                : 75392220982
+Mean latency (ns)               : 18126215875
+50.00 percentile latency (ns)   : 15547305082
+90.00 percentile latency (ns)   : 33253026627
+95.00 percentile latency (ns)   : 41273874816
+97.00 percentile latency (ns)   : 47623417554
+99.00 percentile latency (ns)   : 61949763138
+99.90 percentile latency (ns)   : 71321648045
+
+Completed tokens per second                 : 48398.30
+Min First Token latency (ns)                : 29055313
+Max First Token latency (ns)                : 375369297
+Mean First Token latency (ns)               : 174364994
+50.00 percentile first token latency (ns)   : 173741130
+90.00 percentile first token latency (ns)   : 210069311
+95.00 percentile first token latency (ns)   : 220066188
+97.00 percentile first token latency (ns)   : 226856291
+99.00 percentile first token latency (ns)   : 239591426
+99.90 percentile first token latency (ns)   : 262300273
+
+Min Time per Output Token (ns)                : 14238686
+Max Time per Output Token (ns)                : 84843871
+Mean Time per Output Token (ns)               : 66203877
+50.00 percentile time to output token (ns)   : 66888765
+90.00 percentile time to output token (ns)   : 70552944
+95.00 percentile time to output token (ns)   : 71820975
+97.00 percentile time to output token (ns)   : 72531789
+99.00 percentile time to output token (ns)   : 73828708
+99.90 percentile time to output token (ns)   : 75523112
+
+================================================
+Test Parameters Used
+================================================
+samples_per_query : 1
+target_qps : 180
+ttft_latency (ns): 2000000000
+tpot_latency (ns): 200000000
+max_async_queries : 0
+min_duration (ms): 1800000
+max_duration (ms): 0
+min_query_count : 100
+max_query_count : 0
+qsl_rng_seed : 2465351861681999779
+sample_index_rng_seed : 14276810075590677512
+schedule_rng_seed : 3936089224930324775
+accuracy_log_rng_seed : 0
+accuracy_log_probability : 0
+accuracy_log_sampling_target : 0
+print_timestamps : 0
+performance_issue_unique : 0
+performance_issue_same : 0
+performance_issue_same_index : 0
+performance_sample_count : 24576
+accuracy_sample_count : 24576
+WARNING: sample_concatenate_permutation was set to true.
+Generated samples per query might be different as the one in the setting.
+Check the generated_samples_per_query line in the detailed log for the real
+samples_per_query value
+
+No warnings encountered during test.
+
+No errors encountered during test.
+[2026-09-04 01:06:19,657 INFO] [ llmlib/__init__.py:182 TrtllmServeClientHarnessOp.wrap_lg_test ] Test Complete. Cleaning up LLMServer...
+Processing: 100%|██████████| 344064/344064 [32:32<00:00, 10.82samples/s] Stats=[ 176.45 samples/s, 48004.38 tokens/s, 0.24 TTFT(s), 73.83 TPOT(ms) ]
+[2026-09-04 01:06:21,270 utils.py:442 INFO RANK=0] Harness iteration stats dumped to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-139_2026.09.04-00.20.47/B300-SXM-270GBx4_TRT/llama2-70b-99/Server/harness_iteration_stats.log
+[2026-09-04 01:06:21,284 utils.py:391 INFO RANK=0] Harness stats saved to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-139_2026.09.04-00.20.47/B300-SXM-270GBx4_TRT/llama2-70b-99/Server/harness_stats.log
+[2026-09-04 01:06:21,576 utils.py:421 INFO RANK=0] Harness timeline plot generated to: /work/build/logs/scaleout_B300-SXM-270GBx4_slurm-139_2026.09.04-00.20.47/B300-SXM-270GBx4_TRT/llama2-70b-99/Server/harness_stats_timeline.png
+[2026-09-04 01:06:21,576 INFO] [ TrtllmEndpointCore#2 base.py:454 TrtllmEndpointCore.__del__ ] Completed 85399 samples.
+[2026-09-04 01:06:21,576 INFO] [ TrtllmEndpointCore#1 base.py:454 TrtllmEndpointCore.__del__ ] Completed 85874 samples.
+[2026-09-04 01:06:21,576 INFO] [ TrtllmEndpointCore#0 base.py:454 TrtllmEndpointCore.__del__ ] Completed 86782 samples.
+[2026-09-04 01:06:21,576 INFO] [ LLMServer-352382 server.py:189 LLMServer.stop_work ] Total Samples Completed: 344064
+[2026-09-04 01:06:21,576 INFO] [ TrtllmEndpointCore#3 base.py:454 TrtllmEndpointCore.__del__ ] Completed 86009 samples.
+/bin/dash: 1: sudo: not found
+[2026-09-04 01:06:21,582 harness.py:101 INFO RANK=0] WARNING: Failed to reset vboost slider.
+make[1]: Entering directory '/work'
+/bin/bash: line 1: [: -ge: unary operator expected
+
+======================== Result summaries: ========================
+
+Server Scenario:
++----------------------+---------------+-----------+----------+--------------------------+------------------------------------+------------------+------------------+
+| System Name          | Benchmark     | Setting   | Valid?   | Per-query time usage     | Metric Name                        |   Measured Value | Avg. Power (W)   |
++======================+===============+===========+==========+==========================+====================================+==================+==================+
+| B300-SXM-270GBx4_TRT | llama2-70b-99 | cp990     | VALID    | TTFT: 12.0%, TPOT: 36.9% | result_completed_tokens_per_second |         48398.30 | N/A              |
++----------------------+---------------+-----------+----------+--------------------------+------------------------------------+------------------+------------------+
+  * Note: 'Per-query time usage' is the measured 99th-percentile latency divided by the requested server latency. This value should not exceed 100% for a 'VALID' result.
+make[1]: Leaving directory '/work'
+salloc: Relinquishing job allocation 139
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+dell@dell:/data/lsh/mlperf-runs$ cat inference-0904-0106.log
+[2026-09-04 01:19:42,962 INFO] [ factory.py:129 create_server ] Initialized TrtllmEndpointCore#0 with HarnessConfig:
+TrtllmEndpointConfig(_core_type=<CoreType.TRTLLM_ENDPOINT: 'trtllm_endpoint'>,
+                     tensor_parallelism=1,
+                     pipeline_parallelism=1,
+                     moe_expert_parallelism=None,
+                     enable_ttft_latency_tracker=False,
+                     show_steady_state_progress=False,
+                     gen_config_path=PosixPath('code/llama2-70b/tensorrt/generation_config.json'),
+                     test_mode='AccuracyOnly',
+                     workload=<code.common.workload.Workload object at 0xfba4c8acec0>,
+                     traffic_distribution_policy='isl_load_balancing',
+                     log_dir=PosixPath('/work/build/logs/scaleout_B300-SXM-270GBx4_slurm-140_2026.09.04-01.07.08'),
+                     capture_server_logs_dir=None,
+                     disagg_bench_mode=None,
+                     readiness_timeout=3600,
+                     gen_config=GenerationConfig(eos_token_id=2,
+                                                 bos_token_id=1,
+                                                 max_output_len=1024,
+                                                 min_output_len=1,
+                                                 name='llama',
+                                                 runtime_beam_width=1,
+                                                 streaming=False,
+                                                 temperature=1.0,
+                                                 top_k=1,
+                                                 top_p=1,
+                                                 use_stop_tokens=False,
+                                                 skip_special_tokens=True),
+                     random_seed=0,
+                     build_flags={'context_fmha': 'enable',
+                                  'enable_attention_dp': None,
+                                  'kv_cache_type': 'paged',
+                                  'max_batch_size': None,
+                                  'max_beam_width': 1,
+                                  'max_input_len': None,
+                                  'max_num_tokens': None,
+                                  'max_seq_len': None,
+                                  'moe_expert_parallelism': None,
+                                  'multiple_profiles': 'enable',
+                                  'pipeline_parallelism': 1,
+                                  'remove_input_padding': 'enable',
+                                  'tensor_parallelism': 1,
+                                  'torch_compile_enabled': None,
+                                  'use_fp8_context_fmha': 'enable',
+                                  'use_fused_mlp': 'enable',
+                                  'use_paged_context_fmha': 'enable'},
+                     runtime_flags={'adp_balancing_batching_wait_iters': 10,
+                                    'adp_balancing_enable': True,
+                                    'adp_balancing_timeout_iters': 500,
+                                    'batch_scheduler_policy': 'MAX_UTILIZATION',
+                                    'context_chunking_policy': 'FIRST_COME_FIRST_SERVED',
+                                    'cuda_graph_batch_sizes': None,
+                                    'cuda_graph_padding_enabled': False,
+                                    'dynamic_batch_moving_average_window': 128,
+                                    'enable_batch_size_tuning': False,
+                                    'enable_chunked_context': False,
+                                    'enable_lm_head_tp_in_adp': None,
+                                    'enable_max_num_tokens_tuning': False,
+                                    'exclude_input_from_output': True,
+                                    'http_backend': 'custom_http',
+                                    'kvcache_free_gpu_mem_frac': 0.8,
+                                    'max_batch_size': None,
+                                    'max_concurrency': 3072,
+                                    'max_num_tokens': None,
+                                    'moe_backend': 'CUTLASS',
+                                    'moe_expert_parallelism': None,
+                                    'num_postprocess_workers': 4,
+                                    'pipeline_parallelism': 1,
+                                    'sampler_type': 'TRTLLMSampler',
+                                    'speculative_decoding': {'decoding_type': None,
+                                                             'eagle3_layers_to_capture': None,
+                                                             'max_draft_len': None,
+                                                             'model_dir': None,
+                                                             'num_nextn_predict_layers': None},
+                                    'tensor_parallelism': 1,
+                                    'trtllm_backend': 'pytorch',
+                                    'use_cuda_graphs': False,
+                                    'use_inflight_batching': True,
+                                    'use_low_precision_moe_combine': None,
+                                    'workers_per_core': 2},
+                     checkpoint_flags={'kv_cache_dtype': 'fp8'},
+                     use_cuda_graphs=False,
+                     model_path=PosixPath('/work/build/models/Llama2/fp4-quantized-modelopt/llama2-70b-chat-hf-torch-fp4'),
+                     enable_metrics=False,
+                     extra_config_yaml='backend: pytorch\n'
+                                       'tensor_parallel_size: 1\n'
+                                       'pipeline_parallel_size: 1\n'
+                                       'print_iter_log: false\n'
+                                       'enable_iter_perf_stats: false\n'
+                                       'return_perf_metrics: false\n'
+                                       'enable_layerwise_nvtx_marker: false\n'
+                                       'enable_chunked_prefill: false\n'
+                                       'scheduler_config:\n'
+                                       '  capacity_scheduler_policy: '
+                                       'MAX_UTILIZATION\n'
+                                       '  context_chunking_policy: '
+                                       'FIRST_COME_FIRST_SERVED\n'
+                                       'kv_cache_config:\n'
+                                       '  dtype: fp8\n'
+                                       '  free_gpu_memory_fraction: 0.8\n'
+                                       '  enable_block_reuse: false\n'
+                                       'num_postprocess_workers: 4\n'
+                                       'moe_config:\n'
+                                       '  backend: CUTLASS\n'
+                                       'cache_transceiver_config:\n'
+                                       '  backend: DEFAULT\n'
+                                       'sampler_type: TRTLLMSampler\n',
+                     trtllm_endpoint_urls=['dell:30000', 'dell:30001',
+                                           'dell:30002', 'dell:30003'],
+                     endpoint_url='dell:30000',
+                     mpi_mode=<MPIMode.LEGACY: 'legacy'>,
+                     trtllm_yml_override=None,
+                     harness_use_hf_tokenizer=False,
+                     server_use_hf_tokenizer=False,
+                     global_size=None)
+Results
+
+{'rouge1': 44.7817, 'rouge2': 22.3707, 'rougeL': 29.1589, 'rougeLsum': 42.3033, 'gen_len': 26396235, 'gen_num': 24576, 'gen_tok_len': 6715604, 'tokens_per_sample': 273.3}
+
+======================== Result summaries: ========================
+
+Offline Scenario:
++----------------------+---------------+-----------+------------------+-------------------+------------------+----------------------+
+| System Name          | Benchmark     | Setting   | All Acc. Pass?   | Metric Name       |   Measured Value | Threshold            |
++======================+===============+===========+==================+===================+==================+======================+
+| B300-SXM-270GBx4_TRT | llama2-70b-99 | cp990     | Yes              | ROUGE1            |            44.78 | >=43.98688799999999  |
+|                      |               |           |                  | ROUGE2            |            22.37 | >=21.814847999999998 |
+|                      |               |           |                  | ROUGEL            |            29.16 | >=28.330038          |
+|                      |               |           |                  | TOKENS_PER_SAMPLE |           273.30 | >=265.005            |
++----------------------+---------------+-----------+------------------+-------------------+------------------+----------------------+
+make[1]: Leaving directory '/work'
+salloc: Relinquishing job allocation 140
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
+srun: error: dell: task 0: Terminated
