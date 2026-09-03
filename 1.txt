@@ -1,27 +1,15 @@
-================================================
-Executing srun command:
-================================================
-srun \
-    --overlap \
-    --output=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-126_2026.09.03-14.40.18/slurm_logs/run_llm_server_dell_gpus2,3.stdout \
-    --error=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/logs/scaleout_B300-SXM-270GBx4_slurm-126_2026.09.03-14.40.18/slurm_logs/run_llm_server_dell_gpus2,3.stderr \
-    --export=ALL,NVIDIA_VISIBLE_DEVICES,MLPERF_GPU_LIST,MLPERF_GPU_LIST,TLLM_SPAWN_PROXY_PROCESS_IPC_ADDR=tcp://127.0.0.1:10013,MLPERF_SCRATCH_PATH=/home/mlperf_inference_storage \
-    --container-image=/data/lsh/inference_results_v6.0/closed/NVIDIA/build/sqsh_images/mlperf-inference-dell-x86_64-release.sqsh \
-    --container-mounts=/data/lsh/inference_results_v6.0/closed/NVIDIA:/work,/data/lsh/mlperf_inference_storage:/home/mlperf_inference_storage \
-    --container-workdir=/work \
-    --container-remap-root \
-    --nodes=1 \
-    --nodelist=dell \
-    --ntasks-per-node=2 \
-    --mpi=pmix \
-    --overlap \
-    --cpu-bind=none \
-    --mpi=pmi2 \
-    make \
-    run_llm_server \
-    RUN_ARGS=--benchmarks=llama3.1-405b --scenarios=Offline --core_type=trtllm_endpoint --test_run --readiness_timeout=3600 --mpi_mode=legacy --server_in_foreground --trtllm_server_urls=dell:30001 \
-    SYSTEM_NAME=B300-SXM-270GBx2
+MLPERF_GPU_LIST가 두 번 들어가 있습니다. 이건 제가 며칠 전 run_scaleout.sh에 넣었다가 실패해서 원복했던 패치의 잔재입니다. 원복이 덜 됐거나 중복 적용됐습니다.
 
-srun: error: dell: task 1: Exited with exit code 2
-srun: error: dell: task 0: Exited with exit code 2
-dell@dell:/data/lsh/mlperf-runs$
+bash
+grep -n 'MLPERF_GPU_LIST' scaleout/run_scaleout.sh
+grep -c "locals().get('gpu_ids'" code/llmlib/launch_server.py
+
+MLPERF_GPU_LIST가 나오면 지워야 합니다. 405B가 4장에서 성공했던 시점에는 이게 없었습니다.
+
+bash
+cp scaleout/run_scaleout.sh /tmp/rs-$(date +%H%M).bak
+sed -i 's/,MLPERF_GPU_LIST//g; s/; export MLPERF_GPU_LIST="${gpu_list}"//' scaleout/run_scaleout.sh
+bash -n scaleout/run_scaleout.sh && echo "문법 OK"
+grep -n 'MLPERF_GPU_LIST\|mpi_mode' scaleout/run_scaleout.sh
+
+sed가 정확히 먹었는지 grep으로 확인하세요. 안 맞으면 백업에서 되돌릴 수 있습니다.
