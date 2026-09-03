@@ -12,6 +12,7 @@
 #  사용법
 # -----------------------------------------------------------------------------
 #  [1단계] 환경 준비 — 처음 한 번만
+#    bash mlperf-inference-b300.sh paths      지금 쓰는 경로 확인
 #    bash mlperf-inference-b300.sh doctor     지금 환경이 정상인지 진단
 #    bash mlperf-inference-b300.sh setup      소스코드+컨테이너 내려받기
 #    bash mlperf-inference-b300.sh patch      알려진 버그 수정 적용
@@ -36,6 +37,7 @@
 #    bash mlperf-inference-b300.sh record                   지금까지의 성적표
 #
 #  [문제 발생 시]
+#    bash mlperf-inference-b300.sh diag       서버가 안 뜬 원인 찾기
 #    bash mlperf-inference-b300.sh clean      멈춘 작업/GPU 강제 정리
 #
 #  ※ 학습(Training) 벤치마크는 mlperf-training-b300.sh 를 쓰세요.
@@ -87,19 +89,75 @@
 set -u    # 정의하지 않은 변수를 쓰면 즉시 중단 (오타로 인한 오작동 방지)
 
 # ============================== 사용자 설정 ==================================
-# 환경변수로 덮어쓸 수 있습니다.  예)  BASE=/data/other bash mlperf-...sh doctor
-BASE="${BASE:-/data/lsh}"                                    # 작업 최상위 폴더
-REPO="${REPO:-$BASE/inference_results_v6.0/closed/NVIDIA}"   # MLPerf 소스코드
-SCRATCH="${MLPERF_SCRATCH_PATH:-$BASE/mlperf_inference_storage}"  # 모델/데이터
+# 경로를 지정하는 방법은 세 가지입니다. 아래로 갈수록 우선합니다.
+#
+#   1) 이 파일의 기본값                (아무것도 안 하면 이 값)
+#   2) 설정파일  ~/.mlperf-b300.conf   (한 번 적어두면 계속 적용)
+#   3) 명령줄 옵션  --base /경로 등     (이번 실행에만 적용)
+#
+#  설정파일 예시 (~/.mlperf-b300.conf) — 자주 쓰는 경로를 적어두면 편합니다
+#     BASE=/data/lsh
+#     SCRATCH=/mnt/nvme/mlperf_storage
+#     CONT=/data/lsh/mlperf-inference.sqsh
+#
+#  명령줄 옵션 (명령어보다 앞에 씁니다)
+#     --base    <경로>   작업 최상위 폴더. 아래 경로들의 기준이 됩니다.
+#     --scratch <경로>   모델·데이터·전처리 결과를 두는 폴더 (용량 큼)
+#     --repo    <경로>   MLPerf 소스코드 폴더
+#     --cont    <파일>   컨테이너 이미지(.sqsh) 경로
+#     --logdir  <경로>   실행 로그를 남길 폴더
+#
+#  예)  bash mlperf-inference-b300.sh --scratch /mnt/nvme/st run llama2-70b offline 4
+#       현재 적용된 경로를 확인하려면:  bash mlperf-inference-b300.sh paths
+# -----------------------------------------------------------------------------
+
+# 1) 기본값
+BASE_DEFAULT=/data/lsh
+
+# 2) 설정파일 읽기 (있으면)
+CONF="${MLPERF_CONF:-$HOME/.mlperf-b300.conf}"
+[ -f "$CONF" ] && . "$CONF"
+
+# 환경변수로 준 값도 받습니다 (이전 방식 호환)
+BASE="${BASE:-$BASE_DEFAULT}"
+REPO_IN="${REPO:-}"
+SCRATCH_IN="${SCRATCH:-${MLPERF_SCRATCH_PATH:-}}"
+CONT_IN="${CONT:-}"
+LOGDIR_IN="${LOGDIR:-}"
+
+# 3) 명령줄 옵션 파싱 (명령어보다 앞에 온 것만)
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --base)    BASE="${2:?--base 뒤에 경로를 적어주세요}";       shift 2 ;;
+    --scratch) SCRATCH_IN="${2:?--scratch 뒤에 경로를 적어주세요}"; shift 2 ;;
+    --repo)    REPO_IN="${2:?--repo 뒤에 경로를 적어주세요}";     shift 2 ;;
+    --cont)    CONT_IN="${2:?--cont 뒤에 파일 경로를 적어주세요}"; shift 2 ;;
+    --logdir)  LOGDIR_IN="${2:?--logdir 뒤에 경로를 적어주세요}";  shift 2 ;;
+    --conf)    CONF="${2:?--conf 뒤에 파일 경로를 적어주세요}"
+               [ -f "$CONF" ] && . "$CONF" || { echo "설정파일 없음: $CONF"; exit 1; }
+               shift 2 ;;
+    --help|-h) sed -n '3,80p' "$0"; exit 0 ;;
+    --*)       echo "알 수 없는 옵션: $1"; echo "쓸 수 있는 옵션: --base --scratch --repo --cont --logdir --conf"; exit 1 ;;
+    *)         break ;;      # 옵션이 아니면 명령어 시작
+  esac
+done
+
+# 최종 경로 확정. 따로 지정하지 않은 것은 BASE 기준으로 만듭니다.
+REPO="${REPO_IN:-$BASE/inference_results_v6.0/closed/NVIDIA}"
+SCRATCH="${SCRATCH_IN:-$BASE/mlperf_inference_storage}"
+RUNDIR="${LOGDIR_IN:-$BASE/mlperf-runs}"
 SAFE="$BASE/preserved"          # repo 를 지울 때 컨테이너 이미지를 대피시킬 곳
-RUNDIR="$BASE/mlperf-runs"      # 실행 로그 보관
-mkdir -p "$RUNDIR"
+mkdir -p "$RUNDIR" 2>/dev/null
 
 # NGC(NVIDIA 공식 저장소)의 MLPerf 추론 컨테이너 이미지
 NGC_IMG="nvcr.io/nvidia/mlperf/mlperf-inference:tensorrt_llm_release-feat-1.2-mlpinf-b5ddff4_mlperf-main-f538816_jan28_x86"
 
-# 이미 만들어둔 컨테이너 이미지 파일(.sqsh)을 찾습니다
-SQSH=$(ls -1 "$REPO"/build/sqsh_images/*.sqsh 2>/dev/null | head -1)
+# 컨테이너 이미지. --cont 로 직접 주지 않으면 repo 안에서 찾습니다.
+if [ -n "$CONT_IN" ]; then
+  SQSH="$CONT_IN"
+else
+  SQSH=$(ls -1 "$REPO"/build/sqsh_images/*.sqsh 2>/dev/null | head -1)
+fi
 
 # 이번 실행의 상세 로그 파일 (화면에는 요약만, 상세는 여기로)
 V="$RUNDIR/inference-$(date +%m%d-%H%M).log"
@@ -279,6 +337,77 @@ PYEOF
       cp "$S.orig" "$S"; ng "patch3 실패 — 원본 복구함 (들여쓰기 확인 필요)"
     fi
   fi
+
+  # --- patch 4,5 : GPU 를 여러 장 쓸 때만 필요한 수정 ----------------------
+  # 증상: GPU 4장으로 llama2-70b 를 돌리면 GPU 0 에만 서버가 뜨고 나머진 죽음.
+  # 원인 두 가지가 겹칩니다.
+  #  (4) legacy 모드는 CUDA_VISIBLE_DEVICES 를 index 로 계산합니다. 그런데
+  #      서버를 srun 스텝마다 하나씩 띄우므로 index 는 언제나 0 입니다.
+  #      결과적으로 서버 4개가 전부 물리 GPU 0 을 가리키고, 첫 번째가 메모리를
+  #      거의 다 차지해(kvcache 0.95) 나머지 3개는 메모리 부족으로 즉사합니다.
+  #  (5) 서버 로그 파일 이름도 index 로 만들어서 4개가 같은 파일을 'w' 로 엽니다.
+  #      뒤에 뜬 서버가 앞의 기록을 덮어써 죽은 이유가 사라집니다.
+  #      (이 때문에 원인 파악이 오래 걸렸습니다)
+  if grep -q '\[PATCH4\]' "$S" 2>/dev/null && grep -q '\[PATCH5\]' "$S" 2>/dev/null; then
+    ok "patch4,5 이미 적용됨"
+  else
+    cp "$S" "$S.orig45"
+    python3 - "$S" <<'PYEOF' >>"$V" 2>&1
+import sys
+p = sys.argv[1]
+s = open(p).read()
+n = 0
+
+old4 = """                cmd = ['trtllm-serve']
+                start_gpu = index * gpus_per_server
+                gpu_ids = list(range(start_gpu, start_gpu + gpus_per_server))
+                env['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, gpu_ids))"""
+new4 = """                cmd = ['trtllm-serve']
+                # [PATCH4] index 는 srun 스텝마다 항상 0 이라, 원본 계산식으로는
+                # 모든 서버가 물리 GPU 0 을 가리켜 2번째부터 메모리 부족으로 죽습니다.
+                # run_scaleout.sh 가 랭크별로 서로 다른 값을 넣어주는
+                # NVIDIA_VISIBLE_DEVICES 를 우선 사용합니다.
+                # 단, 컨테이너가 이미 내 몫만 보고 있으면(격리 성공) 원본 계산이
+                # 맞으므로 그대로 둡니다.
+                _nvd = os.getenv('NVIDIA_VISIBLE_DEVICES', '') or ''
+                _mine = [t for t in _nvd.replace(' ', '').split(',') if t.isdigit()]
+                try:
+                    _vis = len(subprocess.check_output(
+                        ['nvidia-smi', '--query-gpu=index', '--format=csv,noheader'],
+                        text=True).strip().splitlines())
+                except Exception:
+                    _vis = 0
+                if _mine and _vis > gpus_per_server:
+                    gpu_ids = _mine[:gpus_per_server]
+                    logging.info(f"[PATCH4] container sees {_vis} GPUs; "
+                                 f"using NVIDIA_VISIBLE_DEVICES -> {gpu_ids}")
+                else:
+                    start_gpu = index * gpus_per_server
+                    gpu_ids = list(range(start_gpu, start_gpu + gpus_per_server))
+                env['CUDA_VISIBLE_DEVICES'] = ','.join(map(str, gpu_ids))"""
+
+old5 = "                log_file = self.log_dir / f'trtllm_serve_{index}.log'"
+new5 = ("                # [PATCH5] index 가 항상 0 이라 서버 여러 개가 같은 파일을 'w' 로\n"
+        "                # 열어 서로 덮어씁니다. 죽은 이유를 남기려면 포트로 구분해야 합니다.\n"
+        "                log_file = self.log_dir / f'trtllm_serve_{index}_port{endpoint_port}.log'")
+
+if "[PATCH4]" in s:   print("patch4 already")
+elif old4 in s:       s = s.replace(old4, new4); n += 1; print("patch4 ok")
+else:                 print("patch4 pattern-not-found"); sys.exit(1)
+
+if "[PATCH5]" in s:   print("patch5 already")
+elif old5 in s:       s = s.replace(old5, new5); n += 1; print("patch5 ok")
+else:                 print("patch5 pattern-not-found"); sys.exit(1)
+
+if n: open(p, 'w').write(s)
+PYEOF
+    if grep -q '\[PATCH4\]' "$S" && grep -q '\[PATCH5\]' "$S" \
+       && python3 -m py_compile "$S" 2>>"$V"; then
+      ok "patch4 서버별 GPU 배정 / patch5 서버별 로그파일 분리"
+    else
+      cp "$S.orig45" "$S"; ng "patch4,5 실패 — 원본 복구함 ($V 확인)"
+    fi
+  fi
 }
 
 # ====================== GPU 개수별 설정파일 만들기 ===========================
@@ -407,6 +536,37 @@ report(){
   LAST_VALID="${VAL:-}"; LAST_TPS="${TPS:-}"
 }
 
+# ======================== 서버가 안 뜰 때 원인 찾기 ==========================
+# 서버는 자기 로그를 따로 남깁니다. 그 파일을 봐야 죽은 이유를 알 수 있습니다.
+#   run_llm_server_*.stderr  : 서버를 "띄우는" 쪽 기록 (배정된 GPU 확인용)
+#   trtllm_serve_*.log       : 서버 "자신"의 기록 (죽은 이유가 여기 있음)
+diag_servers(){
+  local D f
+  D=$(ls -1dt "$REPO"/build/logs/scaleout_* 2>/dev/null | head -1)
+  [ -z "$D" ] && { ng "실행 로그 폴더를 찾을 수 없습니다"; return 1; }
+  say ""
+  say "[구성 확인]"
+  grep -E 'Harness system|Atomic system|GPUs per node|DP multiplicity|Total GPUs' \
+    "$V" 2>/dev/null | tail -6 | sed 's/^/   /'
+  say ""
+  say "[서버별로 어떤 GPU 를 받았나]  — 서로 달라야 정상입니다"
+  grep -h 'GPU devices:' "$D"/slurm_logs/run_llm_server_*.stderr 2>/dev/null \
+    | sed 's/^.*GPU devices:/   GPU devices:/' | sort | uniq -c | sed 's/^/  /'
+  say ""
+  say "[서버 자신의 로그]  $D"
+  ls -1 "$D"/trtllm_serve_*.log 2>/dev/null | sed 's/^/   /' || ng "서버 로그 없음 (기동 전에 죽음)"
+  for f in "$D"/trtllm_serve_*.log; do
+    [ -s "$f" ] || continue
+    say "   --- $(basename "$f") 의 오류 ---"
+    grep -inE 'error|out of memory|OOM|Traceback|abort|Address already in use|CUDA' "$f" \
+      2>/dev/null | tail -6 | sed 's/^/     /'
+  done
+  say ""
+  say "[서버 띄우기 쪽 오류]"
+  grep -hinE 'error|Traceback|out of memory|refused' \
+    "$D"/slurm_logs/run_llm_server_*.stderr 2>/dev/null | tail -8 | sed 's/^/   /'
+}
+
 # ==================== 정확도 채점 자산 확인 (및 자동 복구) ===================
 # 채점기는 아래 세 가지를 요구합니다. 하나만 없어도 채점이 실패합니다.
 #   1) 원본 토크나이저 폴더의 config.json    (모델 구조 정보)
@@ -526,8 +686,7 @@ launch(){
         if [ "$viol" -ge 3 ]; then
           ng "GPU 배치 실패 — 중단합니다 (몇 시간 낭비 방지)"
           kill $P 2>/dev/null; hard_clean
-          grep -E 'Harness system|Atomic system|GPUs per node|DP multiplicity|Total GPUs' \
-            "$V" | tail -6 | sed 's/^/   /'
+          diag_servers
           return 2
         fi
       else
@@ -579,6 +738,11 @@ doctor)
     && ok "patch2 실행방식 legacy" || ng "patch2 누락 — bash $0 patch"
   grep -q "locals().get('gpu_ids'" "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
     && ok "patch3 gpu_ids 오류 해소" || ng "patch3 누락 — bash $0 patch"
+  # patch4,5 는 GPU 를 여러 장 쓸 때만 필요합니다 (1장 실행에는 영향 없음)
+  grep -q '\[PATCH4\]' "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
+    && ok "patch4 서버별 GPU 배정 (다중 GPU 필수)" || ng "patch4 누락 — bash $0 patch"
+  grep -q '\[PATCH5\]' "$REPO/code/llmlib/launch_server.py" 2>/dev/null \
+    && ok "patch5 서버별 로그파일 분리" || ng "patch5 누락 — bash $0 patch"
   bash -n "$REPO/scaleout/run_scaleout.sh" 2>/dev/null \
     && ok "실행 스크립트 문법 정상" || ng "실행 스크립트 문법 깨짐 (.orig 로 복구 필요)"
   say ""
@@ -606,8 +770,55 @@ doctor)
   say " 상세로그: $V"
   ;;
 
+# -------------------------------------------------------------------- paths --
+# 지금 어떤 경로를 쓰고 있는지 보여줍니다. 경로를 바꿨을 때 확인용입니다.
+paths)
+  say "적용된 경로"
+  say ""
+  say "[설정 출처]"
+  [ -f "$CONF" ] && ok "설정파일 $CONF" || say "   설정파일 없음 ($CONF)  — 기본값 사용"
+  say ""
+  say "[경로]"
+  chk(){ # $1=이름 $2=경로 $3=디렉토리면 d, 파일이면 f
+    if [ "$3" = d ] && [ -d "$2" ]; then
+      printf "   %-12s %s   (있음, 여유 %s)\n" "$1" "$2" \
+             "$(df -BG --output=avail "$2" 2>/dev/null | tail -1 | tr -d ' ')"
+    elif [ "$3" = f ] && [ -s "$2" ]; then
+      printf "   %-12s %s   (있음, %s)\n" "$1" "$2" "$(du -h "$2" 2>/dev/null | cut -f1)"
+    else
+      printf "   %-12s %s   (없음)\n" "$1" "${2:-미지정}"
+    fi
+  }
+  chk "BASE"     "$BASE"    d
+  chk "SCRATCH"  "$SCRATCH" d
+  chk "REPO"     "$REPO"    d
+  chk "LOGDIR"   "$RUNDIR"  d
+  chk "CONT"     "$SQSH"    f
+  say ""
+  say "[SCRATCH 하위 구조]"
+  for sub in data models preprocessed_data; do
+    if [ -d "$SCRATCH/$sub" ]; then
+      printf "   %-18s %s\n" "$sub/" "$(du -sh "$SCRATCH/$sub" 2>/dev/null | cut -f1)"
+    else
+      printf "   %-18s (없음)\n" "$sub/"
+    fi
+  done
+  say ""
+  say "[바꾸는 방법]"
+  say "   이번 실행만:  bash $0 --scratch /새/경로 <명령어> ..."
+  say "   계속 적용  :  아래 내용을 $CONF 에 저장"
+  say "                   BASE=$BASE"
+  say "                   SCRATCH=$SCRATCH"
+  say "                   REPO=$REPO"
+  [ -n "$SQSH" ] && say "                   CONT=$SQSH"
+  ;;
+
 # -------------------------------------------------------------------- patch --
 patch) say "알려진 버그 수정 3종 적용"; apply_patches ;;
+
+# --------------------------------------------------------------------- diag --
+# 서버가 안 떴을 때 원인을 찾습니다. 실패 직후에 실행하세요.
+diag) diag_servers ;;
 
 # -------------------------------------------------------------------- clean --
 clean) hard_clean; squeue -u "$(whoami)" ;;
